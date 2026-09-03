@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, Boxes } from "lucide-react";
 import { QUOTE_UNITS, DEFAULT_TERMS, fmtMoney, itemsSubtotal, lineTotal, uid, todayISO, addDays } from "@/lib/constants";
 import { api } from "@/lib/api";
+import CatalogPicker from "@/components/CatalogPicker";
 
-export default function QuoteBuilder({ client, existing, onClose, onSaved }) {
+export default function QuoteBuilder({ client, products, existing, onClose, onSaved }) {
   const [items, setItems] = useState(
     existing?.items?.length ? existing.items : [{ id: uid(), description: "", quantity: 1, unit: "m²", unitPrice: "", discountPercent: "" }]
   );
@@ -17,6 +18,16 @@ export default function QuoteBuilder({ client, existing, onClose, onSaved }) {
   const [scope, setScope] = useState(existing?.scope || "products");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showCatalog, setShowCatalog] = useState(false);
+
+  const addFromCatalog = (item) => {
+    setItems((prev) => {
+      const blank = prev.find((it) => !it.description.trim() && !it.unitPrice);
+      const newItem = { id: uid(), description: item.description, quantity: 1, unit: item.unit, unitPrice: item.price, discountPercent: "" };
+      return blank ? prev.map((it) => (it.id === blank.id ? newItem : it)) : [...prev, newItem];
+    });
+    setShowCatalog(false);
+  };
 
   const addItem = () => setItems([...items, { id: uid(), description: "", quantity: 1, unit: "m²", unitPrice: "", discountPercent: "" }]);
   const updateItem = (id, patch) => setItems(items.map((it) => (it.id === id ? { ...it, ...patch } : it)));
@@ -94,6 +105,7 @@ export default function QuoteBuilder({ client, existing, onClose, onSaved }) {
             ))}
             <div className="hp-item-btn-row">
               <button className="hp-btn hp-btn-ghost hp-add-item-btn" onClick={addItem}><Plus size={14} /> Add line item</button>
+              <button className="hp-btn hp-btn-secondary hp-add-item-btn" onClick={() => setShowCatalog(true)}><Boxes size={14} /> Add from catalog</button>
             </div>
           </div>
 
@@ -136,6 +148,10 @@ export default function QuoteBuilder({ client, existing, onClose, onSaved }) {
           </div>
         </div>
       </div>
+
+      {showCatalog && (
+        <CatalogPicker products={products || []} onPick={addFromCatalog} onClose={() => setShowCatalog(false)} />
+      )}
     </div>
   );
 }

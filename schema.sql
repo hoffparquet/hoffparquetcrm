@@ -87,6 +87,26 @@ create table if not exists order_sheets (
 );
 create index if not exists order_sheets_client_id_idx on order_sheets(client_id);
 
+create table if not exists products (
+  id text primary key,
+  name text not null default '',
+  category text not null default '',
+  wood_species text not null default '',
+  unit text not null default 'item',
+  price_list_date text not null default '',
+  description text not null default '',
+  origin text not null default '',
+  finish text not null default '',
+  grade_notes text not null default '',
+  notes text not null default '',
+  variations jsonb not null default '[]'::jsonb,  -- [{ id, label, price, b2bPrice?, costPrice? }]
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+-- Run migration-4-products.sql after this to load the actual catalog (Ash,
+-- Oak, Riga Parket, Amber Wood, Douglas Fir, labour rates) — kept separate
+-- since it's a large data file, not schema.
+
 -- Single-row table holding company/letterhead info and the next quote number.
 create table if not exists app_settings (
   id int primary key default 1,

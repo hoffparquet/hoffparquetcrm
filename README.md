@@ -1,14 +1,18 @@
 # Hoff Parquet CRM — hosted version
 
-This version adds **order sheets** — a materials-only picking list for
-production, with no pricing and no client-facing detail, plus a shortcut to
-copy items straight from a quote.
+This version adds the **product catalog** and **margins view** — the last
+piece from the original artifact. Every product and price from before is
+here: Ash, Oak, Douglas Fir, Riga Parket, and Amber Wood — 16 products, 762
+priced variations in total, extracted directly from the working artifact and
+verified field-by-field (every name, label, price, B2B price, and cost price)
+to match exactly before being converted into this migration.
 
-**Run the migration for this update**: open `migration-3-order-sheets.sql`
-from this folder, paste it into Neon's SQL Editor, and run it. Then
-re-upload the files to GitHub as usual.
+**Run the migration for this update**: open `migration-4-products.sql` from
+this folder, paste it into Neon's SQL Editor, and run it. It's a big file —
+give it a few seconds. Then re-upload the files to GitHub as usual.
 
-Only the product catalog + margins view remains after this.
+This completes every feature from the original artifact version. Everything
+from here on is refinements, not new ground.
 
 ---
 
@@ -77,6 +81,7 @@ Same as before — give your team the Vercel URL and the workspace password.
 
 ## What's next
 
-The product catalog (with retail/B2B pricing) and the margins view — tell me
-when you're ready and I'll build it.
+All the original features are now here. If you'd like something beyond what
+the original artifact had — individual staff logins, permissions, real email
+sync, anything else — just ask and we'll scope it out.
 

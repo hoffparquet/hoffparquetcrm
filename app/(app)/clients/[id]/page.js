@@ -18,6 +18,7 @@ export default function ClientDetailPage() {
   const router = useRouter();
   const [client, setClient] = useState(null);
   const [settings, setSettings] = useState(null);
+  const [products, setProducts] = useState([]);
   const [note, setNote] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showQuoteBuilder, setShowQuoteBuilder] = useState(false);
@@ -38,6 +39,7 @@ export default function ClientDetailPage() {
   useEffect(() => {
     load();
     api.getSettings().then(setSettings);
+    api.listProducts().then(setProducts);
   }, [load]);
 
   if (!client) {
@@ -251,6 +253,7 @@ export default function ClientDetailPage() {
       {showQuoteBuilder && (
         <QuoteBuilder
           client={client}
+          products={products}
           existing={editingQuote}
           onClose={() => setShowQuoteBuilder(false)}
           onSaved={(saved) => {
@@ -293,6 +296,7 @@ export default function ClientDetailPage() {
       {showInvoiceBuilder && (
         <InvoiceBuilder
           client={client}
+          products={products}
           existing={editingInvoice}
           defaultType={invoiceDefaultType}
           onClose={() => setShowInvoiceBuilder(false)}
@@ -330,6 +334,7 @@ export default function ClientDetailPage() {
       {showOrderBuilder && (
         <OrderSheetBuilder
           client={client}
+          products={products}
           existing={editingOrderSheet}
           onClose={() => setShowOrderBuilder(false)}
           onSaved={(saved) => {

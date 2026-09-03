@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, Boxes } from "lucide-react";
 import { QUOTE_UNITS, uid, todayISO } from "@/lib/constants";
 import { api } from "@/lib/api";
+import CatalogPicker from "@/components/CatalogPicker";
 
-export default function OrderSheetBuilder({ client, existing, onClose, onSaved }) {
+export default function OrderSheetBuilder({ client, products, existing, onClose, onSaved }) {
   const [items, setItems] = useState(
     existing?.items?.length ? existing.items : [{ id: uid(), description: "", quantity: 1, unit: "m²" }]
   );
@@ -14,6 +15,18 @@ export default function OrderSheetBuilder({ client, existing, onClose, onSaved }
   const [copyFromQuoteId, setCopyFromQuoteId] = useState(client.quotes?.[0]?.id || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [showCatalog, setShowCatalog] = useState(false);
+
+  const addFromCatalog = (item) => {
+    // Materials only — price is deliberately ignored, even though the
+    // catalog picker returns one; an order sheet never carries pricing.
+    setItems((prev) => {
+      const blank = prev.find((it) => !it.description.trim());
+      const newItem = { id: uid(), description: item.description, quantity: 1, unit: item.unit };
+      return blank ? prev.map((it) => (it.id === blank.id ? newItem : it)) : [...prev, newItem];
+    });
+    setShowCatalog(false);
+  };
 
   const addItem = () => setItems([...items, { id: uid(), description: "", quantity: 1, unit: "m²" }]);
   const updateItem = (id, patch) => setItems(items.map((it) => (it.id === id ? { ...it, ...patch } : it)));
@@ -100,6 +113,7 @@ export default function OrderSheetBuilder({ client, existing, onClose, onSaved }
             ))}
             <div className="hp-item-btn-row">
               <button className="hp-btn hp-btn-ghost hp-add-item-btn" onClick={addItem}><Plus size={14} /> Add line item</button>
+              <button className="hp-btn hp-btn-secondary hp-add-item-btn" onClick={() => setShowCatalog(true)}><Boxes size={14} /> Add from catalog</button>
             </div>
           </div>
 
@@ -124,6 +138,10 @@ export default function OrderSheetBuilder({ client, existing, onClose, onSaved }
           </div>
         </div>
       </div>
+
+      {showCatalog && (
+        <CatalogPicker products={products || []} onPick={addFromCatalog} onClose={() => setShowCatalog(false)} />
+      )}
     </div>
   );
 }
