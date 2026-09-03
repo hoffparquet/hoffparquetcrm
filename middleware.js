@@ -1,16 +1,35 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
+
+// IMPORTANT: this file runs on Vercel's Edge Runtime, not regular Node.js.
+// Edge Runtime does NOT support Node's built-in `crypto` module (the one
+// used in lib/auth.js for API routes) — only the browser-style Web Crypto
+// API (the global `crypto.subtle`). Importing Node's `crypto` here crashes
+// the middleware with MIDDLEWARE_INVOCATION_FAILED.
+//
+// This computes the exact same HMAC-SHA256 hex digest as lib/auth.js does
+// with Node's crypto — same algorithm, just using the Edge-compatible API —
+// so a session cookie set by /api/auth (Node runtime) is still recognised
+// here correctly.
 
 const SESSION_COOKIE_NAME = "hp_session";
 
-function expectedSessionToken() {
-  return crypto
-    .createHmac("sha256", process.env.SESSION_SECRET || "")
-    .update("hoff-parquet-crm-session")
-    .digest("hex");
+async function expectedSessionToken() {
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(process.env.SESSION_SECRET || "");
+  const key = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode("hoff-parquet-crm-session"));
+  return Array.from(new Uint8Array(signature))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // Always allow the login page itself and the login/logout API routes,
@@ -24,7 +43,8 @@ export function middleware(request) {
   if (isPublic) return NextResponse.next();
 
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
-  const valid = token === expectedSessionToken();
+  const expected = await expectedSessionToken();
+  const valid = !!token && token === expected;
 
   if (!valid) {
     // API routes get a plain 401 instead of a redirect, since a redirect
