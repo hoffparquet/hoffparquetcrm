@@ -10,8 +10,9 @@ export async function GET(request, { params }) {
   const notes = await sql`select * from notes where client_id = ${id} order by created_at desc`;
   const quotes = await sql`select * from quotes where client_id = ${id} order by created_at desc`;
   const invoices = await sql`select * from invoices where client_id = ${id} order by created_at desc`;
+  const orderSheets = await sql`select * from order_sheets where client_id = ${id} order by created_at desc`;
 
-  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices));
+  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices, orderSheets));
 }
 
 // Every updatable client column gets its own explicit branch here. This is
@@ -71,8 +72,9 @@ export async function PATCH(request, { params }) {
   const notes = await sql`select * from notes where client_id = ${id} order by created_at desc`;
   const quotes = await sql`select * from quotes where client_id = ${id} order by created_at desc`;
   const invoices = await sql`select * from invoices where client_id = ${id} order by created_at desc`;
+  const orderSheets = await sql`select * from order_sheets where client_id = ${id} order by created_at desc`;
 
-  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices));
+  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices, orderSheets));
 }
 
 export async function DELETE(request, { params }) {

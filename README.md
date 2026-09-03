@@ -1,16 +1,14 @@
 # Hoff Parquet CRM — hosted version
 
-This version adds the **Settings page** — editing your letterhead, logo, VAT
-details, and bank details for invoices, all from the app itself instead of
-only being set by the database defaults.
+This version adds **order sheets** — a materials-only picking list for
+production, with no pricing and no client-facing detail, plus a shortcut to
+copy items straight from a quote.
 
-**No database migration needed for this update** — just re-upload the files
-to GitHub (Step 2 in the instructions further down) and Vercel redeploys
-automatically. The settings row already exists from the first setup; this
-just adds a screen to edit it.
+**Run the migration for this update**: open `migration-3-order-sheets.sql`
+from this folder, paste it into Neon's SQL Editor, and run it. Then
+re-upload the files to GitHub as usual.
 
-Order sheets and the product catalog + margins are still not in this version
-yet — next up, whenever you're ready.
+Only the product catalog + margins view remains after this.
 
 ---
 
@@ -79,6 +77,6 @@ Same as before — give your team the Vercel URL and the workspace password.
 
 ## What's next
 
-Order sheets, and the product catalog (with retail/B2B pricing) plus the margins
-view — tell me when you're ready and I'll build the next one.
+The product catalog (with retail/B2B pricing) and the margins view — tell me
+when you're ready and I'll build it.
 

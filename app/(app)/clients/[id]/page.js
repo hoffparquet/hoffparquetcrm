@@ -8,6 +8,8 @@ import QuoteBuilder from "@/components/QuoteBuilder";
 import QuotePreview from "@/components/QuotePreview";
 import InvoiceBuilder from "@/components/InvoiceBuilder";
 import InvoicePreview from "@/components/InvoicePreview";
+import OrderSheetBuilder from "@/components/OrderSheetBuilder";
+import OrderSheetPreview from "@/components/OrderSheetPreview";
 import { api } from "@/lib/api";
 import { STAGES, stageIndex, PROJECT_TYPES, WOOD_SPECIES, SOURCES, fmtDate, fmtMoney, itemsSubtotal } from "@/lib/constants";
 
@@ -25,6 +27,9 @@ export default function ClientDetailPage() {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [invoiceDefaultType, setInvoiceDefaultType] = useState("products");
   const [previewInvoice, setPreviewInvoice] = useState(null);
+  const [showOrderBuilder, setShowOrderBuilder] = useState(false);
+  const [editingOrderSheet, setEditingOrderSheet] = useState(null);
+  const [previewOrderSheet, setPreviewOrderSheet] = useState(null);
 
   const load = useCallback(() => {
     api.getClient(id).then(setClient);
@@ -198,6 +203,36 @@ export default function ClientDetailPage() {
           )}
         </div>
 
+        <div className="hp-card" style={{ marginBottom: 16 }}>
+          <div className="hp-panel-notes-head">
+            <h3 style={{ margin: 0 }}>Order sheets</h3>
+            <button className="hp-btn hp-btn-secondary" onClick={() => { setEditingOrderSheet(null); setShowOrderBuilder(true); }}>
+              <Plus size={14} /> New order sheet
+            </button>
+          </div>
+          <p className="hp-muted-small" style={{ marginBottom: 8 }}>
+            A materials-only picking list for production — no prices, no client-facing detail. Generate one once
+            the order is placed and paid.
+          </p>
+          {client.orderSheets.length === 0 ? (
+            <p className="hp-muted-small">No order sheets yet for this client.</p>
+          ) : (
+            <ul className="hp-quote-list">
+              {client.orderSheets.map((o) => (
+                <li key={o.id} onClick={() => setPreviewOrderSheet(o)}>
+                  <div>
+                    <div className="hp-mini-list-name">{o.number || "Draft"}</div>
+                    <div className="hp-mini-list-sub">{fmtDate(o.dateCreated)} · {o.items.length} item{o.items.length === 1 ? "" : "s"}</div>
+                  </div>
+                  <span className={"hp-badge " + (o.status === "sent" ? "hp-badge-sage" : "hp-badge-slate")}>
+                    {o.status === "sent" ? "Sent" : "Draft"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <div className="hp-card">
           {!confirmDelete ? (
             <button className="hp-btn hp-btn-danger-ghost" onClick={() => setConfirmDelete(true)}>
@@ -288,6 +323,42 @@ export default function ClientDetailPage() {
           onPaid={(updated) => {
             setClient((prev) => ({ ...prev, invoices: prev.invoices.map((i) => (i.id === updated.id ? updated : i)) }));
             setPreviewInvoice(updated);
+          }}
+        />
+      )}
+
+      {showOrderBuilder && (
+        <OrderSheetBuilder
+          client={client}
+          existing={editingOrderSheet}
+          onClose={() => setShowOrderBuilder(false)}
+          onSaved={(saved) => {
+            setClient((prev) => ({
+              ...prev,
+              orderSheets: prev.orderSheets.some((o) => o.id === saved.id)
+                ? prev.orderSheets.map((o) => (o.id === saved.id ? saved : o))
+                : [saved, ...prev.orderSheets],
+            }));
+            setShowOrderBuilder(false);
+            setPreviewOrderSheet(saved);
+          }}
+        />
+      )}
+
+      {previewOrderSheet && (
+        <OrderSheetPreview
+          client={client}
+          settings={settings}
+          orderSheet={previewOrderSheet}
+          onClose={() => setPreviewOrderSheet(null)}
+          onEdit={() => { setEditingOrderSheet(previewOrderSheet); setPreviewOrderSheet(null); setShowOrderBuilder(true); }}
+          onDeleted={() => {
+            setClient((prev) => ({ ...prev, orderSheets: prev.orderSheets.filter((o) => o.id !== previewOrderSheet.id) }));
+            setPreviewOrderSheet(null);
+          }}
+          onSent={(updated) => {
+            setClient((prev) => ({ ...prev, orderSheets: prev.orderSheets.map((o) => (o.id === updated.id ? updated : o)) }));
+            setPreviewOrderSheet(updated);
           }}
         />
       )}

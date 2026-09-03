@@ -73,6 +73,20 @@ create table if not exists invoices (
 );
 create index if not exists invoices_client_id_idx on invoices(client_id);
 
+create table if not exists order_sheets (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references clients(id) on delete cascade,
+  number text not null default '',
+  date_created text not null default '',
+  target_date text not null default '',
+  items jsonb not null default '[]'::jsonb,     -- [{ id, description, quantity, unit }] — no pricing fields at all
+  notes text not null default '',
+  status text not null default 'draft',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists order_sheets_client_id_idx on order_sheets(client_id);
+
 -- Single-row table holding company/letterhead info and the next quote number.
 create table if not exists app_settings (
   id int primary key default 1,
@@ -84,6 +98,7 @@ insert into app_settings (id, data)
 values (1, '{
   "nextQuoteNumber": 1,
   "nextInvoiceNumber": 1,
+  "nextOrderNumber": 1,
   "company": {
     "name": "Hoff Parquet",
     "address": "37 Comiston Road, Morningside, Edinburgh, EH10 6AB",

@@ -7,6 +7,7 @@ export async function GET() {
   const noteRows = await sql`select * from notes order by created_at desc`;
   const quoteRows = await sql`select * from quotes order by created_at desc`;
   const invoiceRows = await sql`select * from invoices order by created_at desc`;
+  const orderSheetRows = await sql`select * from order_sheets order by created_at desc`;
 
   const notesByClient = {};
   for (const n of noteRows) {
@@ -20,9 +21,19 @@ export async function GET() {
   for (const inv of invoiceRows) {
     (invoicesByClient[inv.client_id] ||= []).push(inv);
   }
+  const orderSheetsByClient = {};
+  for (const o of orderSheetRows) {
+    (orderSheetsByClient[o.client_id] ||= []).push(o);
+  }
 
   const clients = clientRows.map((row) =>
-    clientRowToApi(row, notesByClient[row.id] || [], quotesByClient[row.id] || [], invoicesByClient[row.id] || [])
+    clientRowToApi(
+      row,
+      notesByClient[row.id] || [],
+      quotesByClient[row.id] || [],
+      invoicesByClient[row.id] || [],
+      orderSheetsByClient[row.id] || []
+    )
   );
   return NextResponse.json(clients);
 }
