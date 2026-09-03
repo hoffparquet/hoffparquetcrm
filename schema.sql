@@ -53,6 +53,26 @@ create table if not exists quotes (
 );
 create index if not exists quotes_client_id_idx on quotes(client_id);
 
+create table if not exists invoices (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references clients(id) on delete cascade,
+  number text not null default '',
+  type text not null default 'products',           -- 'products' or 'installation' only
+  date_issued text not null default '',
+  date_of_supply text not null default '',
+  due_date text not null default '',
+  items jsonb not null default '[]'::jsonb,
+  apply_vat boolean not null default false,
+  vat_rate numeric not null default 20,
+  terms text not null default '',
+  notes text not null default '',
+  status text not null default 'unpaid',
+  paid_date text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists invoices_client_id_idx on invoices(client_id);
+
 -- Single-row table holding company/letterhead info and the next quote number.
 create table if not exists app_settings (
   id int primary key default 1,
@@ -63,6 +83,7 @@ create table if not exists app_settings (
 insert into app_settings (id, data)
 values (1, '{
   "nextQuoteNumber": 1,
+  "nextInvoiceNumber": 1,
   "company": {
     "name": "Hoff Parquet",
     "address": "37 Comiston Road, Morningside, Edinburgh, EH10 6AB",
@@ -72,7 +93,11 @@ values (1, '{
     "companyNumber": "",
     "vatNumber": "",
     "vatRegistered": false,
-    "logo": ""
+    "logo": "",
+    "bankName": "",
+    "accountName": "",
+    "sortCode": "",
+    "accountNumber": ""
   }
 }'::jsonb)
 on conflict (id) do nothing;

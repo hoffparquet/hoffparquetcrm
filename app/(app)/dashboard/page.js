@@ -6,7 +6,7 @@ import { Loader2, StickyNote } from "lucide-react";
 import Topbar from "@/components/Topbar";
 import NewEnquiryModal from "@/components/NewEnquiryModal";
 import { api } from "@/lib/api";
-import { STAGES, fmtMoney, fmtDate } from "@/lib/constants";
+import { STAGES, fmtMoney, fmtDate, itemsSubtotal } from "@/lib/constants";
 
 export default function DashboardPage() {
   const [clients, setClients] = useState(null);
@@ -33,6 +33,18 @@ export default function DashboardPage() {
   const thisMonth = new Date().toISOString().slice(0, 7);
   const installsThisMonth = clients.filter((c) => c.installationDate && c.installationDate.slice(0, 7) === thisMonth).length;
 
+  const outstandingInvoices = clients.reduce((sum, c) => {
+    return (
+      sum +
+      (c.invoices || [])
+        .filter((inv) => inv.status !== "paid")
+        .reduce((s, inv) => {
+          const sub = itemsSubtotal(inv.items);
+          return s + sub + (inv.applyVat ? (sub * (Number(inv.vatRate) || 0)) / 100 : 0);
+        }, 0)
+    );
+  }, 0);
+
   const stageCounts = STAGES.map((s) => ({ ...s, count: clients.filter((c) => c.stage === s.id).length }));
   const maxCount = Math.max(1, ...stageCounts.map((s) => s.count));
 
@@ -58,6 +70,7 @@ export default function DashboardPage() {
               <StatCard label="Pipeline value" value={fmtMoney(pipelineValue)} />
               <StatCard label="Awaiting payment" value={awaitingPayment} />
               <StatCard label="Installs this month" value={installsThisMonth} />
+              <StatCard label="Outstanding invoices" value={fmtMoney(outstandingInvoices)} />
             </div>
 
             <div className="hp-dash-grid">

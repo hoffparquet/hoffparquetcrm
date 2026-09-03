@@ -9,8 +9,9 @@ export async function GET(request, { params }) {
 
   const notes = await sql`select * from notes where client_id = ${id} order by created_at desc`;
   const quotes = await sql`select * from quotes where client_id = ${id} order by created_at desc`;
+  const invoices = await sql`select * from invoices where client_id = ${id} order by created_at desc`;
 
-  return NextResponse.json(clientRowToApi(rows[0], notes, quotes));
+  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices));
 }
 
 // Every updatable client column gets its own explicit branch here. This is
@@ -69,8 +70,9 @@ export async function PATCH(request, { params }) {
   if (rows.length === 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const notes = await sql`select * from notes where client_id = ${id} order by created_at desc`;
   const quotes = await sql`select * from quotes where client_id = ${id} order by created_at desc`;
+  const invoices = await sql`select * from invoices where client_id = ${id} order by created_at desc`;
 
-  return NextResponse.json(clientRowToApi(rows[0], notes, quotes));
+  return NextResponse.json(clientRowToApi(rows[0], notes, quotes, invoices));
 }
 
 export async function DELETE(request, { params }) {

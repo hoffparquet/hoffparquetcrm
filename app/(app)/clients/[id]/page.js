@@ -6,6 +6,8 @@ import { Loader2, CheckCircle2, Trash2, Plus } from "lucide-react";
 import Topbar from "@/components/Topbar";
 import QuoteBuilder from "@/components/QuoteBuilder";
 import QuotePreview from "@/components/QuotePreview";
+import InvoiceBuilder from "@/components/InvoiceBuilder";
+import InvoicePreview from "@/components/InvoicePreview";
 import { api } from "@/lib/api";
 import { STAGES, stageIndex, PROJECT_TYPES, WOOD_SPECIES, SOURCES, fmtDate, fmtMoney, itemsSubtotal } from "@/lib/constants";
 
@@ -19,6 +21,10 @@ export default function ClientDetailPage() {
   const [showQuoteBuilder, setShowQuoteBuilder] = useState(false);
   const [editingQuote, setEditingQuote] = useState(null);
   const [previewQuote, setPreviewQuote] = useState(null);
+  const [showInvoiceBuilder, setShowInvoiceBuilder] = useState(false);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [invoiceDefaultType, setInvoiceDefaultType] = useState("products");
+  const [previewInvoice, setPreviewInvoice] = useState(null);
 
   const load = useCallback(() => {
     api.getClient(id).then(setClient);
@@ -154,6 +160,44 @@ export default function ClientDetailPage() {
           )}
         </div>
 
+        <div className="hp-card" style={{ marginBottom: 16 }}>
+          <div className="hp-panel-notes-head">
+            <h3 style={{ margin: 0 }}>Invoices</h3>
+            <button className="hp-btn hp-btn-secondary" onClick={() => { setEditingInvoice(null); setInvoiceDefaultType("products"); setShowInvoiceBuilder(true); }}>
+              <Plus size={14} /> New invoice
+            </button>
+          </div>
+          <p className="hp-muted-small" style={{ marginBottom: 8 }}>
+            Keep products and installation on separate invoices — one for the materials, a second once the
+            installation is complete.
+          </p>
+          {client.invoices.length === 0 ? (
+            <p className="hp-muted-small">No invoices yet for this client.</p>
+          ) : (
+            <ul className="hp-quote-list">
+              {client.invoices.map((inv) => {
+                const total = itemsSubtotal(inv.items) * (inv.applyVat ? 1 + (Number(inv.vatRate) || 0) / 100 : 1);
+                return (
+                  <li key={inv.id} onClick={() => setPreviewInvoice(inv)}>
+                    <div>
+                      <div className="hp-mini-list-name">{inv.number || "Draft"}</div>
+                      <div className="hp-mini-list-sub">
+                        {inv.type === "installation" ? "Installation" : "Products"} · {fmtDate(inv.dateIssued)} · due {fmtDate(inv.dueDate)}
+                      </div>
+                    </div>
+                    <div className="hp-quote-list-right">
+                      <span className={"hp-badge " + (inv.status === "paid" ? "hp-badge-sage" : "hp-badge-amber")}>
+                        {inv.status === "paid" ? "Paid" : "Unpaid"}
+                      </span>
+                      <span className="hp-mini-list-date">{fmtMoney(total)}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
         <div className="hp-card">
           {!confirmDelete ? (
             <button className="hp-btn hp-btn-danger-ghost" onClick={() => setConfirmDelete(true)}>
@@ -201,6 +245,49 @@ export default function ClientDetailPage() {
           onSent={(updated) => {
             setClient((prev) => ({ ...prev, quotes: prev.quotes.map((q) => (q.id === updated.id ? updated : q)) }));
             setPreviewQuote(updated);
+          }}
+          onDraftInvoice={() => {
+            setEditingInvoice({ items: previewQuote.items, applyVat: previewQuote.applyVat, vatRate: previewQuote.vatRate });
+            setInvoiceDefaultType("products");
+            setPreviewQuote(null);
+            setShowInvoiceBuilder(true);
+          }}
+        />
+      )}
+
+      {showInvoiceBuilder && (
+        <InvoiceBuilder
+          client={client}
+          existing={editingInvoice}
+          defaultType={invoiceDefaultType}
+          onClose={() => setShowInvoiceBuilder(false)}
+          onSaved={(saved) => {
+            setClient((prev) => ({
+              ...prev,
+              invoices: prev.invoices.some((i) => i.id === saved.id)
+                ? prev.invoices.map((i) => (i.id === saved.id ? saved : i))
+                : [saved, ...prev.invoices],
+            }));
+            setShowInvoiceBuilder(false);
+            setPreviewInvoice(saved);
+          }}
+        />
+      )}
+
+      {previewInvoice && (
+        <InvoicePreview
+          client={client}
+          settings={settings}
+          invoice={previewInvoice}
+          onClose={() => setPreviewInvoice(null)}
+          onEdit={() => { setEditingInvoice(previewInvoice); setInvoiceDefaultType(previewInvoice.type); setPreviewInvoice(null); setShowInvoiceBuilder(true); }}
+          onDeleted={() => {
+            setClient((prev) => ({ ...prev, invoices: prev.invoices.filter((i) => i.id !== previewInvoice.id) }));
+            setPreviewInvoice(null);
+          }}
+          onPaid={(updated) => {
+            setClient((prev) => ({ ...prev, invoices: prev.invoices.map((i) => (i.id === updated.id ? updated : i)) }));
+            setPreviewInvoice(updated);
           }}
         />
       )}

@@ -6,6 +6,7 @@ export async function GET() {
   const clientRows = await sql`select * from clients order by created_at desc`;
   const noteRows = await sql`select * from notes order by created_at desc`;
   const quoteRows = await sql`select * from quotes order by created_at desc`;
+  const invoiceRows = await sql`select * from invoices order by created_at desc`;
 
   const notesByClient = {};
   for (const n of noteRows) {
@@ -15,9 +16,13 @@ export async function GET() {
   for (const q of quoteRows) {
     (quotesByClient[q.client_id] ||= []).push(q);
   }
+  const invoicesByClient = {};
+  for (const inv of invoiceRows) {
+    (invoicesByClient[inv.client_id] ||= []).push(inv);
+  }
 
   const clients = clientRows.map((row) =>
-    clientRowToApi(row, notesByClient[row.id] || [], quotesByClient[row.id] || [])
+    clientRowToApi(row, notesByClient[row.id] || [], quotesByClient[row.id] || [], invoicesByClient[row.id] || [])
   );
   return NextResponse.json(clients);
 }
