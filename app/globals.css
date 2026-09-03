@@ -276,12 +276,23 @@ input, select, textarea { font-family: inherit; }
       .hp-quote-footer{ font-size:10.5px; color:#8A7A63; border-top:1px solid var(--line); padding-top:10px; margin-top:10px; }
 
       @media print{
-        body *{ visibility:hidden; }
-        .hp-print-area, .hp-print-area *{ visibility:visible; }
-        .hp-overlay, .hp-panel{ position:static !important; overflow:visible !important; height:auto !important; max-height:none !important; }
-        .hp-print-area{ position:fixed; top:0; left:0; width:100%; margin:0; }
-        .hp-quote-sheet{ border:none; margin:0; box-shadow:none; }
+        /* Hide the actual app UI sitting behind the modal (sidebar + page
+           content) rather than relying on visibility:hidden — visibility
+           still reserves layout space for hidden elements, and combined
+           with position:fixed for the print area, that produced a large
+           blank gap before the content on multi-page prints in Chrome.
+           display:none removes them from layout entirely, so the print
+           area just flows normally from the top of page one. */
+        .hp-sidebar{ display:none !important; }
+        .hp-topbar{ display:none !important; }
+        .hp-main{ display:none !important; }
         .hp-no-print{ display:none !important; }
+
+        body{ background:#fff; }
+        .hp-overlay{ position:static !important; inset:auto !important; background:none !important; display:block !important; }
+        .hp-panel{ position:static !important; width:100% !important; height:auto !important; max-height:none !important; overflow:visible !important; box-shadow:none !important; }
+        .hp-print-area{ position:static !important; margin:0 !important; }
+        .hp-quote-sheet{ border:none; margin:0; box-shadow:none; }
       }
 
       /* catalog picker */

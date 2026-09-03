@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy, Receipt } from "lucide-react";
 import { fmtMoney, fmtDate, itemsSubtotal, lineTotal } from "@/lib/constants";
 import { api } from "@/lib/api";
+import { printWithTitle } from "@/lib/print";
 
 export default function QuotePreview({ client, settings, quote, onClose, onEdit, onDeleted, onSent, onDraftInvoice }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -66,7 +67,7 @@ export default function QuotePreview({ client, settings, quote, onClose, onEdit,
           <button className="hp-btn hp-btn-secondary" onClick={() => navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailBody}`)}>
             <Copy size={14} /> Copy message text
           </button>
-          <button className="hp-btn hp-btn-secondary" onClick={() => window.print()}>
+          <button className="hp-btn hp-btn-secondary" onClick={() => printWithTitle(`Quotation ${quote.number || "draft"}`)}>
             <Printer size={14} /> Print / Save as PDF
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={onEdit}>
