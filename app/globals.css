@@ -43,6 +43,31 @@ input, select, textarea { font-family: inherit; }
 .hp-login-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 600; }
 .hp-login-error { color: var(--rust); font-size: 13px; margin-top: 10px; }
 
+/* Public enquiry form (linked/embedded from the main website) */
+.hp-enquiry-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+  padding: 32px 20px;
+}
+.hp-enquiry-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 36px 36px 32px;
+  width: 100%;
+  max-width: 640px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+.hp-enquiry-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 4px 0 6px;
+}
+
 :root{
   --paper:#F6F3EC;
   --paper-raised:#FFFFFF;

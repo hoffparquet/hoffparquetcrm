@@ -1,87 +1,114 @@
 # Hoff Parquet CRM — hosted version
 
-This version adds the **product catalog** and **margins view** — the last
-piece from the original artifact. Every product and price from before is
-here: Ash, Oak, Douglas Fir, Riga Parket, and Amber Wood — 16 products, 762
-priced variations in total, extracted directly from the working artifact and
-verified field-by-field (every name, label, price, B2B price, and cost price)
-to match exactly before being converted into this migration.
+A hosted, team-shared rebuild of the Hoff Parquet CRM — clients, pipeline,
+quotes, invoices, order sheets, the full product catalog, and margins —
+running as a real website instead of inside Claude, so Print/PDF and email
+work normally.
 
-**Run the migration for this update**: open `migration-4-products.sql` from
-this folder, paste it into Neon's SQL Editor, and run it. It's a big file —
-give it a few seconds. Then re-upload the files to GitHub as usual.
+**New: public enquiry form.** A standalone page at `/enquiry` that anyone
+can fill in — no login required — which creates a new client record
+directly in your CRM, tagged as a Website Enquiry and dropped into Initial
+Contact. Link or embed it from your actual website (Weebly). **No database
+migration needed for this one** — just re-upload the files to GitHub.
 
-This completes every feature from the original artifact version. Everything
-from here on is refinements, not new ground.
+### How to put this on your website
+
+Once deployed, the form lives at: `https://<your-vercel-url>/enquiry`
+
+In Weebly, either:
+- Add a **button or menu link** pointing straight at that URL (simplest), or
+- Use Weebly's **Embed Code** element to embed it inline on a page:
+  ```html
+  <iframe src="https://<your-vercel-url>/enquiry" style="width:100%; height:900px; border:none;"></iframe>
+  ```
+
+### Spam protection on the form
+
+There's a hidden "honeypot" field real visitors never see — bots that
+auto-fill every field trip it, and their submission is quietly discarded
+rather than creating a fake client. This stops simple/automated spam. If
+real spam gets through despite this, the next step up is a proper CAPTCHA
+(Google reCAPTCHA), which needs a free API key — let me know if that
+becomes necessary.
 
 ---
 
-## If you already deployed the first phase
+## Setting this up fresh (first time only)
 
-You only need to do one thing: run the migration.
+1. **Database** — In your Neon project's SQL Editor, run these files **in
+   order**:
+   1. `schema.sql` (creates every table)
+   2. `migration-4-products.sql` (loads the full product catalog — 16
+      products, 762 priced variations). It's a big file; give it a few
+      seconds.
+   
+   Copy the **Connection string** from your Neon dashboard — you'll need it
+   next.
 
-1. Open your Neon project's **SQL Editor**.
-2. Copy the contents of `migration-2-invoices.sql` from this folder and paste it in.
-3. Click **Run**. This adds the `invoices` table and a couple of new settings fields, without touching anything you already have.
-4. Upload the changed and new files to your GitHub repo (Step 2 below) and Vercel will redeploy automatically.
+2. **GitHub** — Create a new **private** repository (e.g. `hoff-parquet-crm`),
+   then use "uploading an existing file" to drag in every file and folder
+   from this project. Click **Commit changes**. No command line needed.
 
-## If you're setting this up fresh
-
-Follow all the steps below in order — `schema.sql` already includes everything, including invoices, so you don't need the migration file separately.
-
----
-
-## Step 1 — Set up the database in Neon
-
-1. Go to your Neon dashboard and open your project.
-2. Find the **SQL Editor** in the left-hand menu.
-3. Open `schema.sql` from this folder, copy its entire contents, and paste it into the Neon SQL Editor.
-4. Click **Run**. You should see tables appear (`clients`, `notes`, `quotes`, `invoices`, `app_settings`).
-5. From your Neon project's dashboard, copy the **Connection string** (looks like `postgresql://user:password@host/dbname?sslmode=require`) — you'll need it in Step 3.
-
-## Step 2 — Put this project on GitHub
-
-1. Go to github.com and click **New repository**. Name it something like `hoff-parquet-crm`. Keep it **Private**.
-2. On the empty repository page, click **uploading an existing file**.
-3. Drag every file and folder from this project into the upload box. GitHub preserves the folder structure.
-4. Click **Commit changes**.
-
-If you're updating an existing repo rather than starting fresh, just drag in the changed/new files the same way — GitHub will ask if you want to replace the existing ones; say yes.
-
-## Step 3 — Deploy on Vercel
-
-1. Go to vercel.com, click **Add New → Project**, and import your `hoff-parquet-crm` repo.
-2. Add the three environment variables before deploying:
+3. **Vercel** — Import the repo (**Add New → Project**), and before
+   deploying add these three environment variables:
 
    | Name | Value |
    |---|---|
    | `DATABASE_URL` | the connection string from Neon |
    | `WORKSPACE_PASSWORD` | any password for your team to log in with |
-   | `SESSION_SECRET` | any long random text |
+   | `SESSION_SECRET` | any long random text — nobody types this, it's internal |
 
-3. Click **Deploy**.
+   Click **Deploy**.
 
-If you're already deployed and just running the migration, you can skip straight to Step 2's upload — Vercel redeploys automatically from GitHub, no need to touch environment variables again.
+4. **Try it** — log in, add a client, create a quote, mark it sent, draft an
+   invoice from it, mark it paid. Try Print/Save as PDF and Email — both
+   should work normally since this is a real website now.
 
-## Step 4 — Try it
+---
 
-Log in, open a client, create a quote, mark it sent, then use **"Draft products invoice from this"** to see the quote-to-invoice flow. Try marking an invoice paid and check it shows up correctly.
+## If you already have this running and are catching up
+
+Run whichever of these you haven't yet, **in order**, in Neon's SQL Editor:
+
+| File | What it adds |
+|---|---|
+| `migration-2-invoices.sql` | Invoices table + settings fields |
+| `migration-3-order-sheets.sql` | Order sheets table |
+| `migration-4-products.sql` | The full product catalog (16 products, 762 variations) |
+| `migration-5-preview.sql` | *(Optional, read-only)* Preview of the materials price increase below |
+| `migration-5-materials-price-increase.sql` | Applies the materials price increase |
+
+Then re-upload the project files to GitHub — Vercel redeploys automatically.
+Skip this step for `migration-5` files — they only touch data, not code.
+
+### About migration 5 — materials price increase
+
+Retail prices below £60 go up **10%**; £60 and above go up **7%**. This is
+per line item, so a single product can have some variations in each tier.
+B2B prices are recalculated to stay exactly 15% below the new retail price.
+**Cost prices are untouched** — what you pay your supplier hasn't changed.
+**Labour rates are untouched** — materials only.
+
+Run `migration-5-preview.sql` first (read-only, shows exactly what would
+change) before running the real one. If your Neon plan supports branching,
+create a branch first as an extra safety net — this can't be undone by
+re-running it.
 
 ---
 
 ## If something goes wrong
 
-- **"Application error" on the site** — check environment variables first (Step 3), then check the migration ran successfully in Neon.
-- **Invoices section shows an error / won't load** — almost always means the migration wasn't run yet. Go back to Neon and run `migration-2-invoices.sql`.
+- **"Application error" on the site** — check the three environment variables in Vercel, then confirm the relevant migration actually ran in Neon.
+- **A section shows an error / won't load** — almost always a migration that hasn't been run yet. Check the table above.
 - **Login page won't accept the password** — check for extra spaces in `WORKSPACE_PASSWORD` in Vercel.
 
 ## Sharing it with your team
 
-Same as before — give your team the Vercel URL and the workspace password.
+Give your team the Vercel URL and the workspace password — everyone shares
+the same login and the same data.
 
 ## What's next
 
-All the original features are now here. If you'd like something beyond what
-the original artifact had — individual staff logins, permissions, real email
-sync, anything else — just ask and we'll scope it out.
-
+Every feature from the original Claude-artifact version now exists here. If
+you want something beyond that — individual staff logins, permissions, real
+email sync, anything else — just ask and we'll scope it out.

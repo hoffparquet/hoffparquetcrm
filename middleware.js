@@ -32,11 +32,15 @@ async function expectedSessionToken() {
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // Always allow the login page itself and the login/logout API routes,
-  // plus Next.js's internal static asset requests.
+  // Always allow the login page, the public enquiry form (meant to be
+  // linked/embedded from the public website — no login should ever be
+  // required to submit it), their API routes, and Next.js's internal
+  // static asset requests.
   const isPublic =
     pathname === "/login" ||
+    pathname === "/enquiry" ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/public/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
