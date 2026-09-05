@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-import { PROJECT_TYPES, WOOD_SPECIES, SOURCES } from "@/lib/constants";
+import { PROJECT_TYPES, PROJECT_CATEGORIES, WOOD_SPECIES, SOURCES } from "@/lib/constants";
 import { api } from "@/lib/api";
 
 export default function NewEnquiryModal({ onClose, onCreated }) {
   const [f, setF] = useState({
     name: "", companyName: "", email: "", phone: "", address: "",
-    projectType: PROJECT_TYPES[0], woodSpecies: WOOD_SPECIES[0],
+    projectType: PROJECT_TYPES[0], projectCategory: PROJECT_CATEGORIES[0], woodSpecies: WOOD_SPECIES[0],
     areaSqm: "", rooms: "", source: SOURCES[0], estimateValue: "", note: "",
   });
   const [saving, setSaving] = useState(false);
@@ -64,6 +64,12 @@ export default function NewEnquiryModal({ onClose, onCreated }) {
               <label>Project type</label>
               <select value={f.projectType} onChange={set("projectType")}>
                 {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="hp-field">
+              <label>Project category</label>
+              <select value={f.projectCategory} onChange={set("projectCategory")}>
+                {PROJECT_CATEGORIES.map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div className="hp-field">

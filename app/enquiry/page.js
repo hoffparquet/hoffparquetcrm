@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { PROJECT_TYPES, WOOD_SPECIES } from "@/lib/constants";
+import { PROJECT_TYPES, PROJECT_CATEGORIES, WOOD_SPECIES } from "@/lib/constants";
 
 const PROJECT_TYPE_OPTIONS = ["Not sure yet", ...PROJECT_TYPES];
 const WOOD_SPECIES_OPTIONS = ["Not sure yet", ...WOOD_SPECIES];
 
 export default function PublicEnquiryPage() {
   const [f, setF] = useState({
-    name: "", companyName: "", email: "", phone: "",
+    name: "", companyName: "", email: "", phone: "", address: "", projectCategory: "",
     projectType: "", woodSpecies: "", areaSqm: "", rooms: "", message: "",
     website: "", // honeypot — real visitors never see or fill this in
   });
@@ -17,9 +17,12 @@ export default function PublicEnquiryPage() {
 
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
+  const requiredFilled =
+    f.name.trim() && f.email.trim() && f.companyName.trim() && f.address.trim() && f.phone.trim() && f.projectCategory;
+
   const submit = async (e) => {
     e.preventDefault();
-    if (!f.name.trim() || !f.email.trim()) return;
+    if (!requiredFilled) return;
     setStatus("sending");
     setError("");
     try {
@@ -66,9 +69,10 @@ export default function PublicEnquiryPage() {
           <div className="hp-login-mark">HP</div>
           <div className="hp-login-name">Hoff Parquet</div>
         </div>
-        <h1 className="hp-enquiry-title">Tell us about your project</h1>
+        <h1 className="hp-enquiry-title">Trade &amp; B2B enquiry</h1>
         <p className="hp-muted-small" style={{ marginBottom: 20 }}>
-          Share a few details and our team will get back to you with samples, pricing, or trade terms.
+          This form is for trade and business accounts — share your details and project below and our team will
+          get back to you with samples, pricing, and trade terms.
         </p>
 
         <form onSubmit={submit}>
@@ -78,16 +82,27 @@ export default function PublicEnquiryPage() {
               <input value={f.name} onChange={set("name")} required />
             </div>
             <div className="hp-field">
-              <label>Company / trade name</label>
-              <input value={f.companyName} onChange={set("companyName")} />
+              <label>Business / trade name *</label>
+              <input value={f.companyName} onChange={set("companyName")} required />
             </div>
             <div className="hp-field">
               <label>Email *</label>
               <input type="email" value={f.email} onChange={set("email")} required />
             </div>
             <div className="hp-field">
-              <label>Phone</label>
-              <input type="tel" value={f.phone} onChange={set("phone")} />
+              <label>Phone *</label>
+              <input type="tel" value={f.phone} onChange={set("phone")} required />
+            </div>
+            <div className="hp-field hp-field-wide">
+              <label>Business address *</label>
+              <input value={f.address} onChange={set("address")} required />
+            </div>
+            <div className="hp-field">
+              <label>Project category *</label>
+              <select value={f.projectCategory} onChange={set("projectCategory")} required>
+                <option value="" disabled>Select one…</option>
+                {PROJECT_CATEGORIES.map((t) => <option key={t}>{t}</option>)}
+              </select>
             </div>
             <div className="hp-field">
               <label>Project type</label>
@@ -123,7 +138,7 @@ export default function PublicEnquiryPage() {
 
           {error && <p className="hp-login-error">{error}</p>}
 
-          <button type="submit" className="hp-btn hp-btn-primary" disabled={status === "sending" || !f.name.trim() || !f.email.trim()} style={{ marginTop: 16, width: "100%", justifyContent: "center" }}>
+          <button type="submit" className="hp-btn hp-btn-primary" disabled={status === "sending" || !requiredFilled} style={{ marginTop: 16, width: "100%", justifyContent: "center" }}>
             {status === "sending" ? "Sending…" : "Send enquiry"}
           </button>
         </form>

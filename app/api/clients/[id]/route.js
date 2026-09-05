@@ -33,6 +33,8 @@ async function updateClientColumn(id, column, value) {
       return sql`update clients set address = ${value}, updated_at = now() where id = ${id}`;
     case "project_type":
       return sql`update clients set project_type = ${value}, updated_at = now() where id = ${id}`;
+    case "project_category":
+      return sql`update clients set project_category = ${value}, updated_at = now() where id = ${id}`;
     case "wood_species":
       return sql`update clients set wood_species = ${value}, updated_at = now() where id = ${id}`;
     case "area_sqm":

@@ -12,6 +12,7 @@ create table if not exists clients (
   phone text not null default '',
   address text not null default '',
   project_type text not null default '',
+  project_category text not null default '',  -- 'Residential' or 'Commercial'
   wood_species text not null default '',
   area_sqm text not null default '',
   rooms text not null default '',

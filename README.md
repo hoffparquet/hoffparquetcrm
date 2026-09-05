@@ -77,6 +77,7 @@ Run whichever of these you haven't yet, **in order**, in Neon's SQL Editor:
 | `migration-4-products.sql` | The full product catalog (16 products, 762 variations) |
 | `migration-5-preview.sql` | *(Optional, read-only)* Preview of the materials price increase below |
 | `migration-5-materials-price-increase.sql` | Applies the materials price increase |
+| `migration-6-project-category.sql` | Adds the Commercial/Residential field to clients |
 
 Then re-upload the project files to GitHub — Vercel redeploys automatically.
 Skip this step for `migration-5` files — they only touch data, not code.

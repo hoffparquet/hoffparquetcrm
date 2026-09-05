@@ -44,11 +44,11 @@ export async function POST(request) {
 
   const rows = await sql`
     insert into clients (
-      name, company_name, email, phone, address, project_type, wood_species,
+      name, company_name, email, phone, address, project_type, project_category, wood_species,
       area_sqm, rooms, source, estimate_value, dates
     ) values (
       ${name}, ${body.companyName || ""}, ${body.email || ""}, ${body.phone || ""},
-      ${body.address || ""}, ${body.projectType || ""}, ${body.woodSpecies || ""},
+      ${body.address || ""}, ${body.projectType || ""}, ${body.projectCategory || ""}, ${body.woodSpecies || ""},
       ${body.areaSqm || ""}, ${body.rooms || ""}, ${body.source || ""},
       ${body.estimateValue || ""}, ${JSON.stringify({ contactDate: new Date().toISOString().slice(0, 10) })}::jsonb
     )

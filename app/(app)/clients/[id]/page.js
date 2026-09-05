@@ -11,7 +11,7 @@ import InvoicePreview from "@/components/InvoicePreview";
 import OrderSheetBuilder from "@/components/OrderSheetBuilder";
 import OrderSheetPreview from "@/components/OrderSheetPreview";
 import { api } from "@/lib/api";
-import { STAGES, stageIndex, PROJECT_TYPES, WOOD_SPECIES, SOURCES, fmtDate, fmtMoney, itemsSubtotal } from "@/lib/constants";
+import { STAGES, stageIndex, PROJECT_TYPES, PROJECT_CATEGORIES, WOOD_SPECIES, SOURCES, fmtDate, fmtMoney, itemsSubtotal } from "@/lib/constants";
 
 export default function ClientDetailPage() {
   const { id } = useParams();
@@ -100,6 +100,7 @@ export default function ClientDetailPage() {
             <Field label="Phone" value={client.phone} onChange={(v) => patchField({ phone: v })} />
             <Field label="Site address" value={client.address} onChange={(v) => patchField({ address: v })} wide />
             <SelectField label="Project type" value={client.projectType} options={PROJECT_TYPES} onChange={(v) => patchField({ projectType: v })} />
+            <SelectField label="Project category" value={client.projectCategory} options={PROJECT_CATEGORIES} onChange={(v) => patchField({ projectCategory: v })} />
             <SelectField label="Wood species" value={client.woodSpecies} options={WOOD_SPECIES} onChange={(v) => patchField({ woodSpecies: v })} />
             <Field label="Area (m²)" value={client.areaSqm} onChange={(v) => patchField({ areaSqm: v })} type="number" />
             <Field label="Rooms" value={client.rooms} onChange={(v) => patchField({ rooms: v })} />
