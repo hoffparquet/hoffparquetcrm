@@ -6,14 +6,6 @@ import { PROJECT_TYPES, PROJECT_CATEGORIES, WOOD_SPECIES } from "@/lib/constants
 const PROJECT_TYPE_OPTIONS = ["Not sure yet", ...PROJECT_TYPES];
 const WOOD_SPECIES_OPTIONS = ["Not sure yet", ...WOOD_SPECIES];
 
-function Brand() {
-  return (
-    <div className="hp-login-brand">
-      <img src="/hoff-parquet-logo.png" alt="Hoff Parquet" className="hp-enquiry-logo" />
-    </div>
-  );
-}
-
 export default function PublicEnquiryPage() {
   const [f, setF] = useState({
     name: "", companyName: "", email: "", phone: "", address: "", projectCategory: "",
@@ -56,7 +48,6 @@ export default function PublicEnquiryPage() {
     return (
       <div className="hp-enquiry-shell">
         <div className="hp-enquiry-card">
-          <Brand />
           <h1 className="hp-enquiry-title">Thank you</h1>
           <p className="hp-muted-small">
             We&apos;ve received your enquiry and will be in touch shortly. If it&apos;s urgent, you can also call us
@@ -70,7 +61,6 @@ export default function PublicEnquiryPage() {
   return (
     <div className="hp-enquiry-shell">
       <div className="hp-enquiry-card">
-        <Brand />
         <h1 className="hp-enquiry-title">Trade &amp; B2B enquiry</h1>
         <p className="hp-muted-small" style={{ marginBottom: 20 }}>
           This form is for trade and business accounts — share your details and project below and our team will
