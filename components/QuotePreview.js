@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy, Receipt } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy, Receipt, FileDown } from "lucide-react";
 import { fmtMoney, fmtDate, itemsSubtotal, lineTotal } from "@/lib/constants";
 import { api } from "@/lib/api";
 import { printWithTitle } from "@/lib/print";
+import { downloadElementAsPdf } from "@/lib/pdf";
 
 export default function QuotePreview({ client, settings, quote, onClose, onEdit, onDeleted, onSent, onDraftInvoice }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const sheetRef = useRef(null);
   const company = settings?.company || {};
   const subtotal = itemsSubtotal(quote.items);
   const vatAmount = quote.applyVat ? (subtotal * (Number(quote.vatRate) || 0)) / 100 : 0;
   const total = subtotal + vatAmount;
+
+  const downloadPdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(sheetRef.current, `Quotation ${quote.number || "draft"}`);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const emailSubject = `Quotation ${quote.number} from ${company.name || "Hoff Parquet"}`;
   const emailBody = [
@@ -61,6 +73,9 @@ export default function QuotePreview({ client, settings, quote, onClose, onEdit,
         </div>
 
         <div className="hp-quote-actions hp-no-print">
+          <button className="hp-btn hp-btn-primary" onClick={downloadPdf} disabled={generatingPdf}>
+            <FileDown size={14} /> {generatingPdf ? "Generating…" : "Download PDF"}
+          </button>
           <a className="hp-btn hp-btn-secondary" href={mailtoHref}>
             <Mail size={14} /> Email to client
           </a>
@@ -68,7 +83,7 @@ export default function QuotePreview({ client, settings, quote, onClose, onEdit,
             <Copy size={14} /> Copy message text
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={() => printWithTitle(`Quotation ${quote.number || "draft"}`)}>
-            <Printer size={14} /> Print / Save as PDF
+            <Printer size={14} /> Print
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={onEdit}>
             <Pencil size={14} /> Edit
@@ -95,7 +110,7 @@ export default function QuotePreview({ client, settings, quote, onClose, onEdit,
         </div>
 
         <div className="hp-print-area">
-          <div className="hp-quote-sheet">
+          <div className="hp-quote-sheet" ref={sheetRef}>
             <div className="hp-quote-letterhead">
               {company.logo && <img src={company.logo} alt={company.name} className="hp-quote-logo" />}
               <div className="hp-quote-company">

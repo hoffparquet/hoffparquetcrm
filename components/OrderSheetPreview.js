@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy, FileDown } from "lucide-react";
 import { fmtDate } from "@/lib/constants";
 import { api } from "@/lib/api";
 import { printWithTitle } from "@/lib/print";
+import { downloadElementAsPdf } from "@/lib/pdf";
 
 export default function OrderSheetPreview({ client, settings, orderSheet, onClose, onEdit, onDeleted, onSent }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const sheetRef = useRef(null);
   const company = settings?.company || {};
+
+  const downloadPdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(sheetRef.current, `Order sheet ${orderSheet.number || "draft"}`);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const emailSubject = `Order sheet ${orderSheet.number} — ${client.name}`;
   const emailBody = [
@@ -54,6 +66,9 @@ export default function OrderSheetPreview({ client, settings, orderSheet, onClos
         </div>
 
         <div className="hp-quote-actions hp-no-print">
+          <button className="hp-btn hp-btn-primary" onClick={downloadPdf} disabled={generatingPdf}>
+            <FileDown size={14} /> {generatingPdf ? "Generating…" : "Download PDF"}
+          </button>
           <a className="hp-btn hp-btn-secondary" href={mailtoHref}>
             <Mail size={14} /> Email to production
           </a>
@@ -61,7 +76,7 @@ export default function OrderSheetPreview({ client, settings, orderSheet, onClos
             <Copy size={14} /> Copy message text
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={() => printWithTitle(`Order sheet ${orderSheet.number || "draft"}`)}>
-            <Printer size={14} /> Print / Save as PDF
+            <Printer size={14} /> Print
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={onEdit}>
             <Pencil size={14} /> Edit
@@ -85,7 +100,7 @@ export default function OrderSheetPreview({ client, settings, orderSheet, onClos
         </div>
 
         <div className="hp-print-area">
-          <div className="hp-quote-sheet">
+          <div className="hp-quote-sheet" ref={sheetRef}>
             <div className="hp-quote-letterhead">
               {company.logo && <img src={company.logo} alt={company.name} className="hp-quote-logo" />}
               <div className="hp-quote-company">

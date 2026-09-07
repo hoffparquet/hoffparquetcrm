@@ -1,19 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Mail, Printer, Pencil, Trash2, CheckCircle2, Copy, FileDown } from "lucide-react";
 import { fmtMoney, fmtDate, itemsSubtotal, lineTotal } from "@/lib/constants";
 import { api } from "@/lib/api";
 import { printWithTitle } from "@/lib/print";
+import { downloadElementAsPdf } from "@/lib/pdf";
 
 export default function InvoicePreview({ client, settings, invoice, onClose, onEdit, onDeleted, onPaid }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const sheetRef = useRef(null);
   const company = settings?.company || {};
   const subtotal = itemsSubtotal(invoice.items);
   const vatAmount = invoice.applyVat ? (subtotal * (Number(invoice.vatRate) || 0)) / 100 : 0;
   const total = subtotal + vatAmount;
   const hasBankDetails = company.bankName || company.accountNumber;
+
+  const downloadPdf = async () => {
+    setGeneratingPdf(true);
+    try {
+      await downloadElementAsPdf(sheetRef.current, `Invoice ${invoice.number || "draft"}`);
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const emailSubject = `Invoice ${invoice.number} from ${company.name || "Hoff Parquet"}`;
   const emailBody = [
@@ -62,6 +74,9 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
         </div>
 
         <div className="hp-quote-actions hp-no-print">
+          <button className="hp-btn hp-btn-primary" onClick={downloadPdf} disabled={generatingPdf}>
+            <FileDown size={14} /> {generatingPdf ? "Generating…" : "Download PDF"}
+          </button>
           <a className="hp-btn hp-btn-secondary" href={mailtoHref}>
             <Mail size={14} /> Email to client
           </a>
@@ -69,7 +84,7 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
             <Copy size={14} /> Copy message text
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={() => printWithTitle(`Invoice ${invoice.number || "draft"}`)}>
-            <Printer size={14} /> Print / Save as PDF
+            <Printer size={14} /> Print
           </button>
           <button className="hp-btn hp-btn-secondary" onClick={onEdit}>
             <Pencil size={14} /> Edit
@@ -93,7 +108,7 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
         </div>
 
         <div className="hp-print-area">
-          <div className="hp-quote-sheet">
+          <div className="hp-quote-sheet" ref={sheetRef}>
             <div className="hp-quote-letterhead">
               {company.logo && <img src={company.logo} alt={company.name} className="hp-quote-logo" />}
               <div className="hp-quote-company">

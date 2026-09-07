@@ -1,9 +1,19 @@
 # Hoff Parquet CRM — hosted version
 
-A hosted, team-shared rebuild of the Hoff Parquet CRM — clients, pipeline,
-quotes, invoices, order sheets, the full product catalog, and margins —
-running as a real website instead of inside Claude, so Print/PDF and email
-work normally.
+**New: "Download PDF" button on quotes, invoices, and order sheets.** This
+generates a real PDF file directly in the browser and downloads it —
+completely bypassing the browser's print dialog, so none of Chrome's own
+header/footer (URL, date, page number) ever appears, and the file is named
+correctly every time (e.g. "Quotation HP-Q-0002.pdf"). The old Print button
+is still there as a secondary option for anyone who wants to print on
+paper, but Download PDF is now the primary, recommended way to get a copy.
+
+**No database migration needed** — just re-upload the files to GitHub.
+Two new dependencies (`jspdf`, `html2canvas`) get installed automatically
+by Vercel during the next deploy — nothing for you to do beyond the normal
+upload.
+
+---
 
 **New: public enquiry form.** A standalone page at `/enquiry` that anyone
 can fill in — no login required — which creates a new client record
