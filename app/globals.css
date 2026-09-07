@@ -45,21 +45,18 @@ input, select, textarea { font-family: inherit; }
 
 /* Public enquiry form (linked/embedded from the main website) */
 .hp-enquiry-shell {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--paper);
-  padding: 32px 20px;
+  background: #fff;
+  padding: 20px;
 }
 .hp-enquiry-card {
-  background: var(--paper-raised);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 36px 36px 32px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   width: 100%;
   max-width: 640px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.06);
+  margin: 0 auto;
+  box-shadow: none;
 }
 .hp-enquiry-title {
   font-family: 'Fraunces', serif;
