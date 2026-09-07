@@ -10,7 +10,6 @@ function Brand() {
   return (
     <div className="hp-login-brand">
       <img src="/hoff-parquet-logo.png" alt="Hoff Parquet" className="hp-enquiry-logo" />
-      <div className="hp-login-name">Hoff Parquet</div>
     </div>
   );
 }
