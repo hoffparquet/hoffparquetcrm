@@ -67,6 +67,10 @@ input, select, textarea { font-family: inherit; }
   font-weight: 600;
   margin: 4px 0 6px;
 }
+.hp-enquiry-logo {
+  height: 26px;
+  width: auto;
+}
 
 :root{
   --paper:#F6F3EC;
