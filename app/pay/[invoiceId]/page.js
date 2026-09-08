@@ -63,6 +63,7 @@ export default async function PayInvoicePage({ params }) {
       redirectUrl: `${origin}/pay/${invoice.id}/thank-you`,
     });
   } catch (err) {
+    console.error("SumUp checkout creation failed:", err.message);
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 24, fontFamily: "sans-serif", textAlign: "center" }}>
         <h1>Payment temporarily unavailable</h1>
