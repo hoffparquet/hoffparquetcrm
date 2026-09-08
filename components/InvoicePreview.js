@@ -17,6 +17,8 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
   const vatAmount = invoice.applyVat ? (subtotal * (Number(invoice.vatRate) || 0)) / 100 : 0;
   const total = subtotal + vatAmount;
   const hasBankDetails = company.bankName || company.accountNumber;
+  const payUrl = typeof window !== "undefined" ? `${window.location.origin}/pay/${invoice.id}` : "";
+  const isUnpaid = invoice.status !== "paid";
 
   const downloadPdf = async () => {
     setGeneratingPdf(true);
@@ -34,7 +36,7 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
     `Please find our invoice ${invoice.number} for ${invoice.type === "installation" ? "installation" : "the flooring products supplied"}, due ${fmtDate(invoice.dueDate)}.`,
     "",
     `Total due: ${fmtMoney(total)}${invoice.applyVat ? " (incl. VAT)" : ""}`,
-    "",
+    isUnpaid ? `\nPay online by card: ${payUrl}\n` : "",
     "Kind regards,",
     company.name || "Hoff Parquet",
     company.phone || "",
@@ -170,6 +172,15 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
               </div>
               {invoice.status === "paid" && <div className="hp-quote-novat"><span>Paid on</span><span>{fmtDate(invoice.paidDate)}</span></div>}
             </div>
+
+            {isUnpaid && payUrl && (
+              <div className="hp-quote-notes">
+                <h3>Pay online</h3>
+                <p>
+                  Pay this invoice securely by card: <a href={payUrl}>{payUrl}</a>
+                </p>
+              </div>
+            )}
 
             {hasBankDetails && invoice.status !== "paid" && (
               <div className="hp-quote-notes">

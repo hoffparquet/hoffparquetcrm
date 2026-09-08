@@ -34,11 +34,15 @@ export async function middleware(request) {
 
   // Always allow the login page, the public enquiry form (meant to be
   // linked/embedded from the public website — no login should ever be
-  // required to submit it), their API routes, and Next.js's internal
+  // required to submit it), the public invoice payment pages (a client
+  // pays without ever logging in), the SumUp webhook (called by SumUp's
+  // own servers, not a person), their API routes, and Next.js's internal
   // static asset requests.
   const isPublic =
     pathname === "/login" ||
     pathname === "/enquiry" ||
+    pathname.startsWith("/pay/") ||
+    pathname.startsWith("/api/webhooks/") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/public/") ||
     pathname.startsWith("/_next") ||
