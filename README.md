@@ -1,28 +1,30 @@
 # Hoff Parquet CRM — hosted version
 
-**New: automatic client creation from Weebly sample orders.** When someone
-orders samples through your Weebly store checkout, this can now create a
-client in your CRM automatically — name, address, contact details, and a
-note listing which samples were ordered — with no one at Hoff Parquet
-needing to type anything in. This uses a free no-code tool called
-**Zapier** to connect Weebly's checkout to the CRM; nothing to install,
-no coding.
+**New: "Add from Order" — paste a Weebly order, get a new client.** A new
+page (in the sidebar) where you paste the full text of a Weebly order page
+(select all, copy, paste) and it reads out the customer's name, address,
+phone, email, and which samples were ordered, pre-filling a form you check
+over and save. No Zapier, no PayPal Developer account, no external
+accounts to set up at all — this works entirely inside the CRM using code
+already built into it.
 
-**Two things to do:**
-1. Add one new environment variable in Vercel: `SAMPLE_ORDER_SECRET` (any
-   long random text you make up — same idea as `SESSION_SECRET`). Then
-   re-upload the project files to GitHub as usual.
-2. Set up the Zapier automation — see the full walkthrough in the chat
-   where this was built, since the exact field names depend on your own
-   Square/Weebly account and are easiest to follow live rather than from
-   a static file.
+**No database migration needed, and nothing existing was touched** — this
+was added as new, separate files only. Just re-upload the project files to
+GitHub as usual.
 
-**Only new orders are ever affected** — Zapier automations only react to
-things that happen *after* you turn them on; there's no way for it to
-"discover" and process old orders, so nothing needs to be done to exclude
-historical orders — turning the Zap on tomorrow (or whenever you finish
-setting it up) naturally means only orders from that point on create
-anything in the CRM.
+**How to use it, every time a sample order comes in:**
+1. Open the order in Weebly's admin
+2. Click into the page and select all the text (Cmd/Ctrl+A), then copy (Cmd/Ctrl+C)
+3. In the CRM, go to **Add from Order** in the sidebar, paste it in, click **"Read this order"**
+4. Check the pre-filled name/email/phone/address/note look right (fix anything it missed), then click **Create client**
+
+The new client lands in your Clients/Pipeline exactly like any other, tagged
+`source: Sample Order`, with the samples they ordered saved as its first note.
+
+This won't read every order perfectly every time — Weebly's page layout
+could vary a little, or a field might land somewhere unexpected — which is
+why nothing gets created automatically; you always see and can correct the
+form before saving.
 
 ---
 

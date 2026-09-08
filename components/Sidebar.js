@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LayoutGrid, Table2, Boxes, TrendingUp, Settings as SettingsIcon, LogOut } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, Table2, Boxes, TrendingUp, ClipboardPaste, Settings as SettingsIcon, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pipeline", label: "Pipeline", icon: LayoutGrid },
   { href: "/clients", label: "Clients", icon: Table2 },
+  { href: "/quick-add", label: "Add from Order", icon: ClipboardPaste },
   { href: "/products", label: "Products", icon: Boxes },
   { href: "/margins", label: "Margins", icon: TrendingUp },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
