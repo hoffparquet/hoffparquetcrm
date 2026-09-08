@@ -1,5 +1,31 @@
 # Hoff Parquet CRM — hosted version
 
+**New: automatic client creation from Weebly sample orders.** When someone
+orders samples through your Weebly store checkout, this can now create a
+client in your CRM automatically — name, address, contact details, and a
+note listing which samples were ordered — with no one at Hoff Parquet
+needing to type anything in. This uses a free no-code tool called
+**Zapier** to connect Weebly's checkout to the CRM; nothing to install,
+no coding.
+
+**Two things to do:**
+1. Add one new environment variable in Vercel: `SAMPLE_ORDER_SECRET` (any
+   long random text you make up — same idea as `SESSION_SECRET`). Then
+   re-upload the project files to GitHub as usual.
+2. Set up the Zapier automation — see the full walkthrough in the chat
+   where this was built, since the exact field names depend on your own
+   Square/Weebly account and are easiest to follow live rather than from
+   a static file.
+
+**Only new orders are ever affected** — Zapier automations only react to
+things that happen *after* you turn them on; there's no way for it to
+"discover" and process old orders, so nothing needs to be done to exclude
+historical orders — turning the Zap on tomorrow (or whenever you finish
+setting it up) naturally means only orders from that point on create
+anything in the CRM.
+
+---
+
 **New: "Download PDF" button on quotes, invoices, and order sheets.** This
 generates a real PDF file directly in the browser and downloads it —
 completely bypassing the browser's print dialog, so none of Chrome's own
@@ -88,6 +114,7 @@ Run whichever of these you haven't yet, **in order**, in Neon's SQL Editor:
 | `migration-5-preview.sql` | *(Optional, read-only)* Preview of the materials price increase below |
 | `migration-5-materials-price-increase.sql` | Applies the materials price increase |
 | `migration-6-project-category.sql` | Adds the Commercial/Residential field to clients |
+| `migration-7-border-brass-labour.sql` | Adds chevron/herringbone border & brass inlay labour rates (run once only) |
 
 Then re-upload the project files to GitHub — Vercel redeploys automatically.
 Skip this step for `migration-5` files — they only touch data, not code.
