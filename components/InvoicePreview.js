@@ -174,10 +174,17 @@ export default function InvoicePreview({ client, settings, invoice, onClose, onE
             </div>
 
             {isUnpaid && payUrl && (
-              <div className="hp-quote-notes">
+              <div className="hp-quote-notes" style={{ textAlign: "center" }}>
                 <h3>Pay online</h3>
-                <p>
-                  Pay this invoice securely by card: <a href={payUrl}>{payUrl}</a>
+                <a
+                  href={payUrl}
+                  className="hp-btn hp-btn-primary"
+                  style={{ display: "inline-flex", margin: "8px 0", textDecoration: "none" }}
+                >
+                  Pay by Card
+                </a>
+                <p className="hp-muted-small">
+                  Or copy this link into your browser: {payUrl}
                 </p>
               </div>
             )}
