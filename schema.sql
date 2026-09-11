@@ -70,6 +70,7 @@ create table if not exists invoices (
   status text not null default 'unpaid',
   paid_date text not null default '',
   sumup_checkout_id text not null default '',
+  mollie_payment_id text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

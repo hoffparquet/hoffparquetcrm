@@ -1,14 +1,13 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { sql } from "@/lib/db";
-import { createSumupCheckout } from "@/lib/sumup";
+import { createMolliePayment } from "@/lib/mollie";
 import { itemsSubtotal } from "@/lib/constants";
 
 // This is a Server Component, not a client page — it runs entirely on the
-// server, creates a brand new SumUp checkout every time it's visited (since
-// Hosted Checkout sessions only last 30 minutes, one can't be created ahead
-// of time and stored), then redirects the browser straight to SumUp's own
-// hosted payment page. No card details ever pass through this app.
+// server, creates a brand new Mollie payment every time it's visited, then
+// redirects the browser straight to Mollie's own hosted payment page. No
+// card details ever pass through this app.
 export default async function PayInvoicePage({ params }) {
   const { invoiceId } = params;
 
@@ -49,21 +48,17 @@ export default async function PayInvoicePage({ params }) {
   const host = headers().get("host");
   const origin = `https://${host}`;
 
-  let checkout;
+  let payment;
   try {
-    checkout = await createSumupCheckout({
+    payment = await createMolliePayment({
       amount: total,
       currency: "GBP",
-      // Unique per attempt — someone re-visiting this link after an earlier
-      // attempt expired should be able to start a fresh one without SumUp
-      // rejecting it as a duplicate.
-      reference: `invoice-${invoice.id}-${Date.now()}`,
       description: `Invoice ${invoice.number} — Hoff Parquet`,
-      returnUrl: `${origin}/api/webhooks/sumup`,
+      webhookUrl: `${origin}/api/webhooks/mollie`,
       redirectUrl: `${origin}/pay/${invoice.id}/thank-you`,
     });
   } catch (err) {
-    console.error("SumUp checkout creation failed:", err.message);
+    console.error("Mollie payment creation failed:", err.message);
     return (
       <div style={{ maxWidth: 480, margin: "80px auto", padding: 24, fontFamily: "sans-serif", textAlign: "center" }}>
         <h1>Payment temporarily unavailable</h1>
@@ -72,9 +67,9 @@ export default async function PayInvoicePage({ params }) {
     );
   }
 
-  // Store this attempt's checkout id so the webhook can find its way back
-  // to this invoice when SumUp reports a status change.
-  await sql`update invoices set sumup_checkout_id = ${checkout.id}, updated_at = now() where id = ${invoiceId}`;
+  // Store this attempt's payment id so the webhook can find its way back
+  // to this invoice when Mollie reports a status change.
+  await sql`update invoices set mollie_payment_id = ${payment.id}, updated_at = now() where id = ${invoiceId}`;
 
-  redirect(checkout.hosted_checkout_url);
+  redirect(payment.checkoutUrl);
 }

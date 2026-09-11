@@ -1,39 +1,39 @@
 # Hoff Parquet CRM — hosted version
 
-**New: "Pay by Card" on invoices, via SumUp.** Every unpaid invoice
-(materials or installation) now shows a real payment link. The client
-clicks it, pays on a SumUp-hosted page (card details never touch this app),
-and the invoice **marks itself as paid automatically** the moment SumUp
-confirms the payment — no manual step needed.
+**"Pay by Card" on invoices now runs on Mollie, not SumUp.** Every unpaid
+invoice (materials or installation) shows a real payment link. The client
+clicks it, pays on a Mollie-hosted page (card details never touch this
+app), and the invoice **marks itself as paid automatically** the moment
+Mollie confirms the payment — no manual step needed. Nothing about how
+this looks or works for you changed — same button, same behaviour — only
+the payment provider underneath is different.
 
-**Two things to do:**
+**Three things to do:**
 
-1. Run `migration-8-sumup-payments.sql` in Neon's SQL Editor.
-2. Confirm these two environment variables are set in Vercel (you should
-   have already added them): `SUMUP_API_KEY` and `SUMUP_MERCHANT_CODE`.
-   Then re-upload the project files to GitHub as usual.
+1. Run `migration-9-mollie-payments.sql` in Neon's SQL Editor.
+2. In your Mollie dashboard, go to **Developers → API keys**, and copy
+   your **live** API key (starts with `live_`).
+3. In Vercel, add one environment variable: `MOLLIE_API_KEY` set to that
+   key. You can remove the old `SUMUP_API_KEY` and `SUMUP_MERCHANT_CODE`
+   variables if you like — they're no longer used — or just leave them,
+   they're harmless either way. Then re-upload the project files to
+   GitHub as usual.
 
-**How it works:** the payment link on each invoice always points to your
-own CRM (`/pay/<invoice id>`), not directly to SumUp. When someone clicks
-it, the CRM creates a brand new SumUp payment session at that exact moment
-and sends them there — this is deliberate: SumUp's payment sessions expire
-after 30 minutes, so one can't be created in advance and just sit on the
-invoice waiting to be used.
+**Please test this properly before using it on a real client**, the same
+way as before: create a tiny test invoice (£1 or so), open its payment
+link, and pay it with a real card. Confirm the invoice flips to "Paid" on
+its own within a few seconds. Refund the test transaction from your Mollie
+dashboard afterwards.
 
-**Please test this properly before using it on a real client.** Create a
-test invoice for a very small amount (e.g. £1), open its payment link, and
-actually pay it with a real card — there's no sandbox mode active on this
-integration, so this is a real transaction. Confirm the invoice flips to
-"Paid" on its own within a few seconds, without you touching anything. You
-can refund a test transaction from your normal SumUp dashboard afterwards.
+**Same realistic limitation as before**: the "Pay online" button works
+properly on screen and in the "Email to client" message. In a downloaded
+PDF, the link appears as correct, readable text underneath the button, but
+can't be clicked — PDFs generated this way don't support clickable links.
+Emailing the invoice directly is the more reliable path for now.
 
-**One realistic limitation worth knowing**: the "Pay online" link is a
-real clickable link when viewing an invoice on screen, or in the "Email to
-client" message. In a **downloaded PDF**, it appears as readable, correct
-text, but PDFs generated this way don't support clickable links — someone
-reading only the PDF would need to type or copy the link rather than click
-it. Emailing the invoice (rather than sending the PDF alone) is the more
-reliable path for now.
+---
+
+
 
 ---
 
@@ -155,7 +155,8 @@ Run whichever of these you haven't yet, **in order**, in Neon's SQL Editor:
 | `migration-5-materials-price-increase.sql` | Applies the materials price increase |
 | `migration-6-project-category.sql` | Adds the Commercial/Residential field to clients |
 | `migration-7-border-brass-labour.sql` | Adds chevron/herringbone border & brass inlay labour rates (run once only) |
-| `migration-8-sumup-payments.sql` | Adds SumUp payment tracking to invoices |
+| `migration-8-sumup-payments.sql` | Historical only — added SumUp payment tracking, since superseded |
+| `migration-9-mollie-payments.sql` | Adds Mollie payment tracking to invoices (the current payment provider) |
 
 Then re-upload the project files to GitHub — Vercel redeploys automatically.
 Skip this step for `migration-5` files — they only touch data, not code.
