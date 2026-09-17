@@ -1,5 +1,33 @@
 # Hoff Parquet CRM — hosted version
 
+**New: Labour Margins split out from Margins, plus real Job Costing.**
+
+- **Margins** is now materials-only again (Riga Parket, Amber Wood, Ash,
+  Oak, Douglas Fir, etc.) — installation/labour no longer shows up there.
+- **Labour Margins** (new page) shows the same cost/margin view, but only
+  for Installation & Labour catalog items — Herringbone/Chevron fitting,
+  plank installation, skirting, beading, border & brass work, all now with
+  fitter costs attached.
+- **Job Costing** (new page) is a different thing entirely: instead of
+  catalog-level "what does this type of job usually cost", it's a log of
+  **actual jobs** — pick a client (optional), name the project, note the
+  date and which fitter did the work, add line items (with a shortcut to
+  pull straight from the labour catalog, cost and charge both prefilled
+  but fully editable since real jobs can vary from the standard rate), and
+  it totals up exactly what you paid the fitter, what you charged, and
+  what's left over — per named project, not just per catalog line.
+
+**To deploy:**
+1. Run `migration-11-border-brass-costs.sql` — adds the fitter costs you
+   gave me for border (£12/lm) and brass inlay (£15/lm) work, flat across
+   all cities since none was specified for these two.
+2. Run `migration-12-installation-jobs.sql` — creates the new table Job
+   Costing needs.
+3. Upload the project files to GitHub as usual.
+
+---
+
+
 **"Pay by Card" on invoices now runs on Mollie, not SumUp.** Every unpaid
 invoice (materials or installation) shows a real payment link. The client
 clicks it, pays on a Mollie-hosted page (card details never touch this
@@ -158,6 +186,8 @@ Run whichever of these you haven't yet, **in order**, in Neon's SQL Editor:
 | `migration-8-sumup-payments.sql` | Historical only — added SumUp payment tracking, since superseded |
 | `migration-9-mollie-payments.sql` | Adds Mollie payment tracking to invoices (the current payment provider) |
 | `migration-10-fitting-costs.sql` | Adds fitting costs to install labour + skirting, adds Beading as a new item |
+| `migration-11-border-brass-costs.sql` | Adds fitter costs for border & brass inlay work |
+| `migration-12-installation-jobs.sql` | Creates the table Job Costing needs |
 
 Then re-upload the project files to GitHub — Vercel redeploys automatically.
 Skip this step for `migration-5` files — they only touch data, not code.

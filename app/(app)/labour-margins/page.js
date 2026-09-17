@@ -15,7 +15,7 @@ function StatCard({ label, value }) {
   );
 }
 
-export default function MarginsPage() {
+export default function LabourMarginsPage() {
   const [products, setProducts] = useState(null);
   const [query, setQuery] = useState("");
   const [openId, setOpenId] = useState(null);
@@ -32,45 +32,45 @@ export default function MarginsPage() {
     );
   }
 
-  const materials = products.filter((p) => p.category !== "Installation & Labour");
+  const labour = products.filter((p) => p.category === "Installation & Labour");
 
   const q = query.trim().toLowerCase();
   const matches = (p) => !q || p.name.toLowerCase().includes(q) || (p.woodSpecies || "").toLowerCase().includes(q) || (p.category || "").toLowerCase().includes(q);
 
-  const withCost = materials.filter((p) => matches(p) && p.variations.some((v) => hasCost(v)));
-  const withoutCost = materials.filter((p) => matches(p) && !p.variations.some((v) => hasCost(v)));
+  const withCost = labour.filter((p) => matches(p) && p.variations.some((v) => hasCost(v)));
+  const withoutCost = labour.filter((p) => matches(p) && !p.variations.some((v) => hasCost(v)));
 
-  const allCostedVariations = materials.flatMap((p) => p.variations.filter((v) => hasCost(v)));
+  const allCostedVariations = labour.flatMap((p) => p.variations.filter((v) => hasCost(v)));
   const avgMarginPct = allCostedVariations.length
     ? allCostedVariations.reduce((s, v) => s + marginPercent(v), 0) / allCostedVariations.length
     : null;
-  const totalVariations = materials.reduce((s, p) => s + p.variations.length, 0);
+  const totalVariations = labour.reduce((s, p) => s + p.variations.length, 0);
 
   return (
     <>
-      <Topbar title="Margins" />
+      <Topbar title="Labour Margins" />
       <main className="hp-main">
         <div className="hp-margins">
-          {materials.length === 0 ? (
+          {labour.length === 0 ? (
             <div className="hp-empty">
-              <h2>No materials yet</h2>
+              <h2>No labour items yet</h2>
               <p>Add products in the Products view first, then add cost prices to see margins here.</p>
             </div>
           ) : (
             <>
               <p className="hp-muted-small" style={{ marginBottom: 14 }}>
-                Materials only — see <strong>Labour Margins</strong> for installation and fitting costs.
+                Installation & fitting labour only — see <strong>Margins</strong> for material products.
                 Add a cost price to any variation (Products → Edit) to bring it into this view.
               </p>
               <div className="hp-stat-grid hp-margins-stats">
                 <StatCard label="Variations with cost data" value={`${allCostedVariations.length} / ${totalVariations}`} />
                 <StatCard label="Average margin" value={avgMarginPct === null ? "—" : `${avgMarginPct.toFixed(1)}%`} />
-                <StatCard label="Products fully priced" value={`${withCost.length} / ${materials.length}`} />
+                <StatCard label="Products fully priced" value={`${withCost.length} / ${labour.length}`} />
               </div>
 
               <div className="hp-search" style={{ marginBottom: 16, maxWidth: 360 }}>
                 <Search size={15} />
-                <input placeholder="Search products…" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input placeholder="Search labour items…" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
 
               {withCost.length === 0 ? (

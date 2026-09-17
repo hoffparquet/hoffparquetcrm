@@ -110,6 +110,19 @@ create table if not exists products (
 -- Oak, Riga Parket, Amber Wood, Douglas Fir, labour rates) — kept separate
 -- since it's a large data file, not schema.
 
+create table if not exists installation_jobs (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid references clients(id) on delete set null,
+  project_name text not null default '',
+  job_date text not null default '',
+  fitter_name text not null default '',
+  items jsonb not null default '[]'::jsonb,  -- [{ id, description, quantity, unit, costPerUnit, chargePerUnit }]
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists installation_jobs_client_id_idx on installation_jobs(client_id);
+
 -- Single-row table holding company/letterhead info and the next quote number.
 create table if not exists app_settings (
   id int primary key default 1,
