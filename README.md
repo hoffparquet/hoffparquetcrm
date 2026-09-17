@@ -1,5 +1,55 @@
 # Hoff Parquet CRM — hosted version
 
+**New: Leads — find architects, designers, developers and builders.** Two
+new pages in the sidebar, **Leads** and **Email & leads setup**. Nothing
+that already existed was changed: clients, quotes, invoices, order sheets
+and products all work exactly as before, and a lead only ever touches
+them when you press "Convert to client".
+
+**One thing to do first:** run `migration-10-leads.sql` in Neon's SQL
+Editor. It adds three new tables and alters nothing existing. Safe to run
+twice if you lose track.
+
+### What it does
+
+**Leads** searches the official Companies House register by industry code
+and town — so "every active architecture practice registered in
+Edinburgh" is a real search, not guesswork. You see the results first,
+tick the ones you want, and import them. Anything already in your list is
+greyed out, so you can't import the same firm twice.
+
+Six target groups are built in: architects, interior designers, property
+developers, builders & contractors, hotels & restaurants, and fit-out &
+joinery. **Fit-out and joinery firms come in marked "Needs review" and are
+never treated as ready to contact** — some of them would buy your oak and
+fit it themselves, and some are your competitors. You approve those one at
+a time.
+
+**Worth knowing:** Companies House publishes company names, addresses,
+industry codes and incorporation dates — but *not* email addresses. Leads
+arrive without one, and there's a field on each lead to fill in as you
+find them. Finding those addresses automatically is the next piece of
+work, and it's deliberately separate: sending to bad addresses is the
+fastest way to wreck a sending reputation.
+
+**Email & leads setup** is where you paste the Companies House API key
+(free, from developer.company-information.service.gov.uk — it saves
+straight to the database, so no redeploy), set your separate sending
+domain, and run the **authentication check**. That check reads your live
+DNS and tells you green/red on SPF, DKIM, DMARC and MX, with the exact
+fix written out for anything that's wrong — including the classic
+registrar mistake where the domain ends up in the record name twice. DNS
+changes can take up to 24 hours to show up.
+
+### Please test it the same way as always
+
+Import a small batch first — say 20 Edinburgh architects — and check the
+names and addresses look sensible before pulling hundreds. Then convert
+one lead to a client and confirm it lands in Initial Contact with its
+details intact.
+
+---
+
 **"Pay by Card" on invoices now runs on Mollie, not SumUp.** Every unpaid
 invoice (materials or installation) shows a real payment link. The client
 clicks it, pays on a Mollie-hosted page (card details never touch this
