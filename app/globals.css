@@ -432,39 +432,3 @@ input, select, textarea { font-family: inherit; }
         .hp-quote-company, .hp-quote-client{ text-align:left; }
       }
     
-      /* ── lead generation module ─────────────────────────────────── */
-      .hp-lead-label{ font-size:11.5px; color:var(--ink-soft); font-weight:600; display:block; margin-bottom:6px; }
-      .hp-lead-segments{ display:flex; flex-wrap:wrap; gap:6px; }
-      .hp-lead-presets{ display:flex; flex-direction:column; gap:4px; margin-top:8px; }
-      .hp-lead-preset-group{ font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); font-weight:700; margin-right:6px; }
-      .hp-lead-preset{ font-size:11.5px; font-family:inherit; background:transparent; border:none; color:var(--oak-dark); cursor:pointer; padding:2px 5px; border-radius:4px; }
-      .hp-lead-preset:hover{ background:var(--paper); text-decoration:underline; }
-
-      .hp-lead-warning{ display:flex; align-items:flex-start; gap:8px; background:var(--amber-bg); color:#6B5310; border-radius:8px; padding:10px 12px; font-size:12.5px; line-height:1.5; margin-top:10px; }
-      .hp-lead-warning svg{ flex-shrink:0; margin-top:1px; color:var(--amber); }
-      .hp-lead-error{ background:var(--rust-bg); color:var(--rust); border-radius:8px; padding:10px 12px; font-size:13px; line-height:1.5; }
-      .hp-lead-success{ display:flex; align-items:center; gap:8px; background:var(--sage-bg); color:var(--sage); border-radius:8px; padding:10px 12px; font-size:13px; }
-      .hp-lead-success svg{ flex-shrink:0; }
-
-      .hp-lead-results-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:14px; flex-wrap:wrap; }
-      .hp-lead-results{ display:flex; flex-direction:column; gap:2px; max-height:46vh; overflow-y:auto; }
-      .hp-lead-result{ display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:7px; cursor:pointer; }
-      .hp-lead-result:hover{ background:var(--paper-raised); }
-      .hp-lead-result.disabled{ opacity:.5; cursor:default; }
-      .hp-lead-result input{ flex-shrink:0; accent-color:var(--oak); width:15px; height:15px; }
-      .hp-lead-result > div{ flex:1; min-width:0; }
-      .hp-lead-result-name{ font-size:13px; font-weight:700; }
-      .hp-lead-result-sub{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
-
-      /* email authentication check */
-      .hp-check-summary{ border-radius:8px; padding:12px 14px; font-size:13.5px; font-weight:600; margin-bottom:12px; }
-      .hp-check-summary.pass{ background:var(--sage-bg); color:var(--sage); }
-      .hp-check-summary.fail{ background:var(--amber-bg); color:#6B5310; }
-      .hp-check-row{ display:flex; gap:10px; padding:12px 0; border-top:1px solid var(--line); }
-      .hp-check-icon{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-      .hp-check-row.pass .hp-check-icon{ background:var(--sage-bg); color:var(--sage); }
-      .hp-check-row.fail .hp-check-icon{ background:var(--rust-bg); color:var(--rust); }
-      .hp-check-body{ flex:1; min-width:0; }
-      .hp-check-label{ font-size:13px; font-weight:700; }
-      .hp-check-detail{ font-size:12px; color:var(--ink-soft); margin-top:3px; word-break:break-word; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
-      .hp-check-fix{ font-size:12.5px; color:var(--ink); background:var(--paper); border-left:2px solid var(--oak); padding:8px 10px; border-radius:0 6px 6px 0; margin-top:6px; line-height:1.5; }

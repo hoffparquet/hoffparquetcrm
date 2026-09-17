@@ -32,45 +32,43 @@ export default function MarginsPage() {
     );
   }
 
-  const scoped = products.filter((p) => p.id.startsWith("seed-riga-") || p.id.startsWith("seed-amberwood-"));
-
   const q = query.trim().toLowerCase();
   const matches = (p) => !q || p.name.toLowerCase().includes(q) || (p.woodSpecies || "").toLowerCase().includes(q) || (p.category || "").toLowerCase().includes(q);
 
-  const withCost = scoped.filter((p) => matches(p) && p.variations.some((v) => hasCost(v)));
-  const withoutCost = scoped.filter((p) => matches(p) && !p.variations.some((v) => hasCost(v)));
+  const withCost = products.filter((p) => matches(p) && p.variations.some((v) => hasCost(v)));
+  const withoutCost = products.filter((p) => matches(p) && !p.variations.some((v) => hasCost(v)));
 
-  const allCostedVariations = scoped.flatMap((p) => p.variations.filter((v) => hasCost(v)));
+  const allCostedVariations = products.flatMap((p) => p.variations.filter((v) => hasCost(v)));
   const avgMarginPct = allCostedVariations.length
     ? allCostedVariations.reduce((s, v) => s + marginPercent(v), 0) / allCostedVariations.length
     : null;
-  const totalVariations = scoped.reduce((s, p) => s + p.variations.length, 0);
+  const totalVariations = products.reduce((s, p) => s + p.variations.length, 0);
 
   return (
     <>
       <Topbar title="Margins" />
       <main className="hp-main">
         <div className="hp-margins">
-          {scoped.length === 0 ? (
+          {products.length === 0 ? (
             <div className="hp-empty">
-              <h2>No Riga Parket or Amber Wood products yet</h2>
-              <p>This view is scoped to Riga Parket and Amber Wood suppliers for now.</p>
+              <h2>No products yet</h2>
+              <p>Add products in the Products view first, then add cost prices to see margins here.</p>
             </div>
           ) : (
             <>
               <p className="hp-muted-small" style={{ marginBottom: 14 }}>
-                Scoped to Riga Parket and Amber Wood supplier products for now. Hoff&apos;s own branded lines
-                aren&apos;t included yet.
+                Covers every product with a cost price set, across materials and installation labour alike. Add a
+                cost price to any variation (Products → Edit) to bring it into this view.
               </p>
               <div className="hp-stat-grid hp-margins-stats">
                 <StatCard label="Variations with cost data" value={`${allCostedVariations.length} / ${totalVariations}`} />
                 <StatCard label="Average margin" value={avgMarginPct === null ? "—" : `${avgMarginPct.toFixed(1)}%`} />
-                <StatCard label="Products fully priced" value={`${withCost.length} / ${scoped.length}`} />
+                <StatCard label="Products fully priced" value={`${withCost.length} / ${products.length}`} />
               </div>
 
               <div className="hp-search" style={{ marginBottom: 16, maxWidth: 360 }}>
                 <Search size={15} />
-                <input placeholder="Search Riga Parket or Amber Wood products…" value={query} onChange={(e) => setQuery(e.target.value)} />
+                <input placeholder="Search products…" value={query} onChange={(e) => setQuery(e.target.value)} />
               </div>
 
               {withCost.length === 0 ? (
