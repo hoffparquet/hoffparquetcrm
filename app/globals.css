@@ -430,5 +430,28 @@ input, select, textarea { font-family: inherit; }
         .hp-quote-sheet{ margin:12px; padding:20px; }
         .hp-quote-letterhead, .hp-quote-meta{ flex-direction:column; align-items:flex-start; gap:10px; }
         .hp-quote-company, .hp-quote-client{ text-align:left; }
+
+        /* Catalog picker (Add from catalog) — this panel was fixed at 560px
+           and its rows didn't wrap, so on a phone the text got clipped or
+           pushed off the edge of the screen. */
+        .hp-panel-narrow{ width:100%; }
+        .hp-tier-toggle{ flex-wrap:wrap; row-gap:6px; }
+        .hp-catalog-product-head{ padding:10px; gap:8px; }
+        .hp-catalog-product-head > div{ min-width:0; flex:1 1 auto; }
+        .hp-mini-list-name, .hp-mini-list-sub{ overflow-wrap:anywhere; }
+        .hp-catalog-variation-row{ flex-wrap:wrap; row-gap:4px; }
+        .hp-catalog-variation-row span:first-child{ overflow-wrap:anywhere; min-width:0; }
+        .hp-catalog-variation-price{ margin-left:auto; }
+        .hp-panel-head{ padding:16px 16px 12px; }
+        .hp-panel-body{ padding:14px 16px 26px; }
+        .hp-search{ min-width:0; width:100%; }
       }
-    
+
+      /* Extra-small phones */
+      @media (max-width: 420px){
+        .hp-catalog-product-head{ padding:9px; }
+        .hp-mini-list-name{ font-size:13px; }
+        .hp-mini-list-sub{ font-size:11px; }
+        .hp-catalog-variation-row{ padding:8px 9px; font-size:12px; }
+        .hp-tier-toggle .hp-pill{ padding:6px 9px; font-size:11.5px; }
+      }
