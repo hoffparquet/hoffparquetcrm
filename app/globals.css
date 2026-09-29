@@ -324,8 +324,13 @@ input, select, textarea { font-family: inherit; }
       /* catalog picker */
       .hp-catalog-search{ margin-bottom: 14px; }
       .hp-tier-toggle{ display:flex; gap:8px; margin-bottom:14px; }
-      .hp-catalog-list{ display:flex; flex-direction:column; gap:6px; max-height:60vh; overflow-y:auto; }
-      .hp-catalog-product{ border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+      .hp-catalog-list{ display:flex; flex-direction:column; gap:6px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+      /* transform:translateZ(0) forces each row onto its own GPU layer, which
+         works around an iOS Safari bug where a rounded, clipped box doesn't
+         repaint correctly when a sibling above it changes height (opening a
+         product) — without it, rows below the opened one can show stale,
+         overlapping text until the page is scrolled. */
+      .hp-catalog-product{ border:1px solid var(--line); border-radius:8px; overflow:hidden; transform:translateZ(0); -webkit-transform:translateZ(0); -webkit-backface-visibility:hidden; }
       .hp-catalog-product-head{ width:100%; display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--paper-raised); border:none; cursor:pointer; font-family:inherit; text-align:left; color:var(--ink-soft); }
       .hp-catalog-product-head:hover{ background:var(--paper); }
       .hp-catalog-variations{ display:flex; flex-direction:column; max-height:260px; overflow-y:auto; border-top:1px solid var(--line); }
