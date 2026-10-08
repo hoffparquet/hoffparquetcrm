@@ -1,5 +1,27 @@
 # Hoff Parquet CRM — hosted version
 
+**New: outreach replies land in the CRM automatically.** Once a day (and
+whenever you press **Check sales@ now** on the Leads page) the CRM reads
+the sales@hoffparquet.co.uk mailbox:
+
+- every outreach email you've **sent** adds or updates a lead marked
+  **Contacted**, with its town, so leads can be filtered by location;
+- a **reply** turns that company into a client at **Initial Contact**, with
+  the reply copied into the client's notes (if they're already a client,
+  it just adds the note — no duplicates);
+- "**unsubscribe**" marks the lead **Rejected** — never contact again;
+- **bounces** mark the email as invalid; **out-of-office** replies are ignored.
+
+It only ever reads the mailbox (never sends, moves or deletes mail) and only
+ever *adds* to the CRM — nothing existing is overwritten or removed.
+
+**To deploy:** run `migration-10-leads.sql` (if not done yet), then
+`migration-13-outreach-sync.sql`, in Neon; add `CRON_SECRET` in Vercel
+alongside `MS_TENANT_ID`, `MS_CLIENT_ID`, `MS_CLIENT_SECRET` and
+`OUTREACH_MAILBOX`; upload the files to GitHub as usual.
+
+---
+
 **New: Labour Margins split out from Margins, plus real Job Costing.**
 
 - **Margins** is now materials-only again (Riga Parket, Amber Wood, Ash,

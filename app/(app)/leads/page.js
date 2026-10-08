@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Search, Plus, Building2 } from "lucide-react";
+import { Loader2, Search, Plus, Building2, MailCheck } from "lucide-react";
 import { leadApi } from "@/lib/leadApi";
 import { SEGMENTS, LEAD_STATUSES, segmentLabel, statusMeta } from "@/lib/leads";
 import LeadFinder from "@/components/LeadFinder";
@@ -21,6 +21,9 @@ export default function LeadsPage() {
   const [query, setQuery] = useState("");
   const [segmentFilter, setSegmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [townFilter, setTownFilter] = useState("all");
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
   const [finderOpen, setFinderOpen] = useState(false);
   const [openLead, setOpenLead] = useState(null);
   const [error, setError] = useState("");
@@ -37,12 +40,59 @@ export default function LeadsPage() {
 
   useEffect(load, []);
 
+  useEffect(() => {
+    leadApi
+      .mailStatus()
+      .then((s) => {
+        if (s.lastSync) setSyncMsg(`sales@ last checked ${new Date(s.lastSync).toLocaleString("en-GB")}.`);
+      })
+      .catch(() => {});
+  }, []);
+
+  const checkMailbox = async () => {
+    setSyncing(true);
+    setSyncMsg("");
+    try {
+      const r = await leadApi.syncMail();
+      const parts = [
+        `${r.leadsAdded} new lead${r.leadsAdded === 1 ? "" : "s"} from sent emails`,
+        `${r.clientsCreated} repl${r.clientsCreated === 1 ? "y" : "ies"} added as clients`,
+        r.notesAdded ? `${r.notesAdded} reply note${r.notesAdded === 1 ? "" : "s"} added` : null,
+        r.unsubscribes ? `${r.unsubscribes} unsubscribed` : null,
+        r.bounces ? `${r.bounces} bounced` : null,
+      ].filter(Boolean);
+      setSyncMsg(`Checked sales@: ${parts.join(", ")}.` + (r.errors.length ? ` ${r.errors.length} problem(s): ${r.errors[0]}` : ""));
+      load();
+    } catch (e) {
+      setSyncMsg(e.message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  // Towns present in the leads, grouped by region, for the location filter.
+  const towns = useMemo(() => {
+    const byRegion = {};
+    for (const l of leads || []) {
+      const town = (l.locality || "").trim();
+      if (!town) continue;
+      const region = (l.region || "").trim() || "Other";
+      byRegion[region] = byRegion[region] || new Set();
+      byRegion[region].add(town);
+    }
+    return Object.keys(byRegion)
+      .sort()
+      .map((region) => ({ region, towns: [...byRegion[region]].sort() }));
+  }, [leads]);
+
   const filtered = useMemo(() => {
     if (!leads) return [];
     const q = query.trim().toLowerCase();
     return leads.filter((l) => {
       if (segmentFilter !== "all" && l.segment !== segmentFilter) return false;
       if (statusFilter !== "all" && l.status !== statusFilter) return false;
+      if (townFilter === "none" && (l.locality || "").trim()) return false;
+      if (townFilter !== "all" && townFilter !== "none" && (l.locality || "").trim() !== townFilter) return false;
       if (!q) return true;
       return (
         l.companyName.toLowerCase().includes(q) ||
@@ -51,7 +101,7 @@ export default function LeadsPage() {
         (l.email || "").toLowerCase().includes(q)
       );
     });
-  }, [leads, query, segmentFilter, statusFilter]);
+  }, [leads, query, segmentFilter, statusFilter, townFilter]);
 
   if (!leads) {
     return (
@@ -72,6 +122,7 @@ export default function LeadsPage() {
     total: leads.length,
     review: leads.filter((l) => l.status === "review").length,
     approved: leads.filter((l) => l.status === "approved").length,
+    contacted: leads.filter((l) => l.status === "contacted").length,
     withEmail: leads.filter((l) => l.email).length,
     converted: leads.filter((l) => l.status === "converted").length,
   };
@@ -91,6 +142,9 @@ export default function LeadsPage() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
+          <button className="hp-btn" onClick={checkMailbox} disabled={syncing}>
+            {syncing ? <Loader2 className="spin" size={15} /> : <MailCheck size={15} />} Check sales@ now
+          </button>
           <button className="hp-btn hp-btn-primary" onClick={() => setFinderOpen(true)}>
             <Plus size={15} /> Find companies
           </button>
@@ -99,6 +153,7 @@ export default function LeadsPage() {
 
       <main className="hp-main">
         {error && <div className="hp-lead-error">{error}</div>}
+        {syncMsg && <div className="hp-table-sub" style={{ marginBottom: 12 }}>{syncMsg}</div>}
 
         {leads.length === 0 ? (
           <div className="hp-empty">
@@ -119,7 +174,7 @@ export default function LeadsPage() {
             <div className="hp-stat-grid hp-margins-stats" style={{ gridTemplateColumns: "repeat(5,1fr)" }}>
               <StatCard label="Total leads" value={counts.total} />
               <StatCard label="Awaiting your review" value={counts.review} />
-              <StatCard label="Approved for outreach" value={counts.approved} />
+              <StatCard label="Emailed, awaiting reply" value={counts.contacted} />
               <StatCard label="With an email address" value={counts.withEmail} />
               <StatCard label="Became clients" value={counts.converted} />
             </div>
@@ -158,6 +213,21 @@ export default function LeadsPage() {
                     {s.label}
                   </button>
                 ))}
+              </div>
+              <div className="hp-table-filters">
+                <select value={townFilter} onChange={(e) => setTownFilter(e.target.value)}>
+                  <option value="all">All locations</option>
+                  {towns.map((g) => (
+                    <optgroup key={g.region} label={g.region}>
+                      {g.towns.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                  <option value="none">No location yet</option>
+                </select>
               </div>
 
               <table className="hp-table">
