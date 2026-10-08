@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, LayoutGrid, Table2, Boxes, TrendingUp, Hammer, ClipboardPaste, Settings as SettingsIcon, LogOut } from "lucide-react";
+import { LayoutDashboard, LayoutGrid, Table2, Boxes, TrendingUp, Hammer, ClipboardPaste, Users, Mail, Settings as SettingsIcon, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +13,8 @@ const NAV_ITEMS = [
   { href: "/margins", label: "Margins", icon: TrendingUp },
   { href: "/labour-margins", label: "Labour Margins", icon: TrendingUp },
   { href: "/job-costing", label: "Job Costing", icon: Hammer },
+  { href: "/leads", label: "Leads", icon: Users },
+  { href: "/email-setup", label: "Email & Leads setup", icon: Mail },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
