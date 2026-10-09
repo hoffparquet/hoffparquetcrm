@@ -1,5 +1,22 @@
 # Hoff Parquet CRM — hosted version
 
+**New: outreach drafts are finished automatically — branded layout, logo
+signature and PDF flyer.** Every morning (~11am UK, after the outreach agent
+has written its drafts) and whenever you press **Check sales@ now**, the CRM
+takes each draft in sales@ Drafts tagged "Outreach", rebuilds it in the
+branded layout (keeping the personalised opening line), embeds the logo in
+the signature, attaches the flyer, and tags it **Ready to send**. Nothing is
+sent — you still review and press Send. Only send drafts tagged Ready to send.
+
+- To change the flyer: replace `lib/assets/flyer.js` (ask Claude to make it).
+- To change the email layout/wording: `lib/outreachEmail.js`.
+
+**To deploy:** in Entra → App registrations → Hoff CRM mail → API
+permissions, add **Mail.ReadWrite** (Application, Microsoft Graph) and press
+**Grant admin consent**. No database change. Upload the files to GitHub.
+
+---
+
 **New: outreach replies land in the CRM automatically.** Once a day (and
 whenever you press **Check sales@ now** on the Leads page) the CRM reads
 the sales@hoffparquet.co.uk mailbox:

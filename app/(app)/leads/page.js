@@ -55,6 +55,7 @@ export default function LeadsPage() {
     try {
       const r = await leadApi.syncMail();
       const parts = [
+        r.draftsFinished ? `${r.draftsFinished} draft${r.draftsFinished === 1 ? "" : "s"} made ready to send` : null,
         `${r.leadsAdded} new lead${r.leadsAdded === 1 ? "" : "s"} from sent emails`,
         `${r.clientsCreated} repl${r.clientsCreated === 1 ? "y" : "ies"} added as clients`,
         r.notesAdded ? `${r.notesAdded} reply note${r.notesAdded === 1 ? "" : "s"} added` : null,

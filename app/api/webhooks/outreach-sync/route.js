@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { syncOutreachMailbox } from "@/lib/outreachSync";
+import { finishOutreachDrafts } from "@/lib/draftFinisher";
 import { MailError } from "@/lib/graphMail";
 
 // Called automatically by Vercel once a day (see vercel.json).
@@ -17,8 +18,21 @@ export async function GET(request) {
     return NextResponse.json({ error: "Not allowed" }, { status: 401 });
   }
   try {
+    // First finish the agent's new drafts (branding, logo, flyer). A problem
+    // here (e.g. missing permission) is reported but doesn't stop the
+    // reply check below.
+    let drafts;
+    try {
+      drafts = await finishOutreachDrafts();
+    } catch (e) {
+      drafts = { finished: 0, skipped: 0, errors: [`Drafts: ${e.message}`] };
+    }
     const result = await syncOutreachMailbox();
-    return NextResponse.json(result);
+    return NextResponse.json({
+      ...result,
+      draftsFinished: drafts.finished,
+      errors: [...drafts.errors, ...result.errors],
+    });
   } catch (e) {
     const status = e instanceof MailError ? 400 : 500;
     return NextResponse.json({ error: e.message }, { status });
