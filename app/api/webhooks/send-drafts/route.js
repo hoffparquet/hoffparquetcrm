@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendReadyDrafts } from "@/lib/draftSender";
 import { finishOutreachDrafts } from "@/lib/draftFinisher";
+import { grantedRoles } from "@/lib/graphMail";
 
 // Sends today's reviewed outreach drafts (see lib/draftSender.js for the rules).
 // Called by Vercel's schedule (vercel.json, with CRON_SECRET) or manually with
@@ -18,6 +19,10 @@ export async function GET(request) {
   const cronSecret = (process.env.CRON_SECRET || "").trim();
   const fromCron = cronSecret && request.headers.get("authorization") === `Bearer ${cronSecret}`;
   if (key !== expected && !fromCron) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
+
+  if (url.searchParams.get("diag") === "1") {
+    return NextResponse.json({ roles: await grantedRoles() });
+  }
 
   try {
     // Last-chance finishing for any draft the morning runs missed.
