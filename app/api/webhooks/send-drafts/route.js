@@ -36,6 +36,10 @@ export async function GET(request) {
     // Last-chance finishing for any draft the morning runs missed.
     try { await finishOutreachDrafts(); } catch (e) {}
     const result = await sendReadyDrafts({ dryRun: url.searchParams.get("dry") === "1" });
+    if (url.searchParams.get("short") === "1") {
+      const firstErr = result.held.find((h) => /failed/i.test(h.why));
+      return NextResponse.json({ sent: result.sent.length, err: firstErr ? firstErr.why.slice(0, 110) : null });
+    }
     return NextResponse.json({ sentCount: result.sent.length, ...result });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
