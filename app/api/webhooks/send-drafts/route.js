@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sendReadyDrafts } from "@/lib/draftSender";
 import { finishOutreachDrafts } from "@/lib/draftFinisher";
-import { grantedRoles } from "@/lib/graphMail";
+import { grantedRoles, sendSelfTest } from "@/lib/graphMail";
 
 // Sends today's reviewed outreach drafts (see lib/draftSender.js for the rules).
 // Called by Vercel's schedule (vercel.json, with CRON_SECRET) or manually with
@@ -21,7 +21,7 @@ export async function GET(request) {
   if (key !== expected && !fromCron) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
 
   if (url.searchParams.get("diag") === "1") {
-    return NextResponse.json({ roles: await grantedRoles() });
+    return NextResponse.json({ roles: await grantedRoles(), selfTest: url.searchParams.get("test") === "1" ? await sendSelfTest() : null });
   }
 
   try {
