@@ -1,5 +1,6 @@
 {
   "crons": [
-    { "path": "/api/webhooks/outreach-sync", "schedule": "0 10 * * *" }
+    { "path": "/api/webhooks/outreach-sync", "schedule": "0 10 * * *" },
+    { "path": "/api/webhooks/finish-drafts", "schedule": "*/10 6-8 * * 1-5" }
   ]
 }

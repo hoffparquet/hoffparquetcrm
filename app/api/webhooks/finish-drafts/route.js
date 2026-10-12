@@ -17,7 +17,10 @@ const DEFAULT_KEY = "W6UP6LPzV4Y79cEAfzyCwCwk7u8FljPQ";
 export async function GET(request) {
   const key = new URL(request.url).searchParams.get("key") || "";
   const expected = (process.env.OUTREACH_HOOK_KEY || DEFAULT_KEY).trim();
-  if (key !== expected) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
+  // Also accept Vercel's own scheduled calls (see vercel.json), which send CRON_SECRET.
+  const cronSecret = (process.env.CRON_SECRET || "").trim();
+  const fromCron = cronSecret && request.headers.get("authorization") === `Bearer ${cronSecret}`;
+  if (key !== expected && !fromCron) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
   try {
     const result = await finishOutreachDrafts();
     return NextResponse.json(result);
