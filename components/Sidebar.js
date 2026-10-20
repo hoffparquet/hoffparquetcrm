@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/pipeline", label: "Pipeline", icon: LayoutGrid },
   { href: "/clients", label: "Clients", icon: Table2 },
+  { href: "/inbox", label: "Email enquiries", icon: Mail },
   { href: "/quick-add", label: "Add from Order", icon: ClipboardPaste },
   { href: "/products", label: "Products", icon: Boxes },
   { href: "/margins", label: "Margins", icon: TrendingUp },

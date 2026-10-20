@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, StickyNote } from "lucide-react";
 import Topbar from "@/components/Topbar";
 import NewEnquiryModal from "@/components/NewEnquiryModal";
+import EmailAlert from "@/components/EmailAlert";
 import { api } from "@/lib/api";
 import { STAGES, fmtMoney, fmtDate, itemsSubtotal } from "@/lib/constants";
 
@@ -57,6 +58,7 @@ export default function DashboardPage() {
     <>
       <Topbar title="Dashboard" onNew={() => setShowNew(true)} />
       <main className="hp-main">
+        <EmailAlert />
         {clients.length === 0 ? (
           <div className="hp-empty">
             <div className="hp-empty-mark">HP</div>

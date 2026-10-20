@@ -19,6 +19,10 @@
     {
       "path": "/api/webhooks/send-drafts",
       "schedule": "0 9 * * 1-5"
+    },
+    {
+      "path": "/api/webhooks/email-sync",
+      "schedule": "*/15 * * * *"
     }
   ]
 }

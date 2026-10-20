@@ -324,16 +324,20 @@ input, select, textarea { font-family: inherit; }
       /* catalog picker */
       .hp-catalog-search{ margin-bottom: 14px; }
       .hp-tier-toggle{ display:flex; gap:8px; margin-bottom:14px; }
-      .hp-catalog-list{ display:flex; flex-direction:column; gap:6px; max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-      /* transform:translateZ(0) forces each row onto its own GPU layer, which
-         works around an iOS Safari bug where a rounded, clipped box doesn't
-         repaint correctly when a sibling above it changes height (opening a
-         product) — without it, rows below the opened one can show stale,
-         overlapping text until the page is scrolled. */
-      .hp-catalog-product{ border:1px solid var(--line); border-radius:8px; overflow:hidden; transform:translateZ(0); -webkit-transform:translateZ(0); -webkit-backface-visibility:hidden; }
+      /* No max-height/overflow here on purpose: this list used to scroll
+         inside itself, inside the panel, and each open product's variations
+         scrolled inside THAT — three nested scroll regions. iOS Safari
+         reliably fails to repaint correctly when content height changes
+         inside a scroll region that's nested inside another one (that's
+         what caused the garbled/overlapping text after opening a product,
+         fixed only by a manual scroll). Letting the outer panel (.hp-panel,
+         already overflow-y:auto) be the only scroll container removes that
+         whole bug class instead of patching around it. */
+      .hp-catalog-list{ display:flex; flex-direction:column; gap:6px; }
+      .hp-catalog-product{ border:1px solid var(--line); border-radius:8px; overflow:hidden; }
       .hp-catalog-product-head{ width:100%; display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--paper-raised); border:none; cursor:pointer; font-family:inherit; text-align:left; color:var(--ink-soft); }
       .hp-catalog-product-head:hover{ background:var(--paper); }
-      .hp-catalog-variations{ display:flex; flex-direction:column; max-height:260px; overflow-y:auto; border-top:1px solid var(--line); }
+      .hp-catalog-variations{ display:flex; flex-direction:column; border-top:1px solid var(--line); }
       .hp-catalog-variation-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border:none; background:var(--paper-raised); border-bottom:1px solid var(--line); font-family:inherit; font-size:12.5px; cursor:pointer; text-align:left; }
       .hp-catalog-variation-row:last-child{ border-bottom:none; }
       .hp-catalog-variation-row:hover{ background:var(--sage-bg); }
@@ -459,4 +463,20 @@ input, select, textarea { font-family: inherit; }
         .hp-mini-list-sub{ font-size:11px; }
         .hp-catalog-variation-row{ padding:8px 9px; font-size:12px; }
         .hp-tier-toggle .hp-pill{ padding:6px 9px; font-size:11.5px; }
+      }
+    
+      /* Email enquiries page */
+      .hp-mail-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+      .hp-mail-list{ display:flex; flex-direction:column; }
+      .hp-mail-row{ display:flex; gap:16px; justify-content:space-between; align-items:flex-start; padding:14px 16px; border-bottom:1px solid var(--line); }
+      .hp-mail-row:last-child{ border-bottom:none; }
+      .hp-mail-main{ min-width:0; flex:1; }
+      .hp-mail-top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+      .hp-mail-subject{ font-size:13.5px; font-weight:600; margin-top:3px; overflow-wrap:anywhere; }
+      .hp-mail-snippet{ font-size:12.5px; color:var(--ink-soft); margin-top:6px; line-height:1.45; overflow-wrap:anywhere; white-space:pre-line; }
+      .hp-mail-buttons{ display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+      .hp-email-alert{ display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:12px 16px; border-radius:10px; background:var(--amber-bg); color:var(--amber); font-size:13px; font-weight:600; }
+      @media (max-width: 900px){
+        .hp-mail-row{ flex-direction:column; gap:10px; }
+        .hp-mail-buttons{ flex-direction:row; flex-wrap:wrap; }
       }
