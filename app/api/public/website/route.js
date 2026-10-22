@@ -81,7 +81,7 @@ export async function POST(request) {
     const noteBody = [
       `Website order ${ref} — paid ${money(body.total)} online (Mollie ${paymentId}).`,
       ...itemLines,
-      Number(body.vat) > 0 ? `• VAT on samples — ${money(body.vat)}` : "",
+      Number(body.vat) > 0 ? `• VAT (20%) — ${money(body.vat)}` : "",
       Number(body.delivery) > 0 ? `• Delivery — ${money(body.delivery)}` : "",
       address ? `Deliver to: ${address}` : "",
       clean(body.notes, 500) ? `Customer notes: ${clean(body.notes, 500)}` : "",
