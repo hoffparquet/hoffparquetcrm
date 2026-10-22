@@ -5,6 +5,7 @@ import { stageIndex } from "@/lib/constants";
 // Called by the new hoffparquet.co.uk website (server to server, never a browser):
 //   kind "order"   — a paid online order (samples and/or accessories), sent after Mollie confirms payment
 //   kind "enquiry" — a quote request or contact-form message
+//   kind "trade"   — a trade account application (filed with source "Trade Partner")
 //
 // Protected by a shared secret: WEBSITE_SECRET here, CRM_WEBSITE_SECRET on the website.
 //
@@ -145,6 +146,48 @@ export async function POST(request) {
         values (${name}, ${email}, ${phone}, ${postcode}, ${projectCategory}, ${areaSqm},
                 ${/chevron/i.test(product) ? "Chevron" : /herringbone/i.test(product) ? "Herringbone" : ""},
                 'Website Enquiry', 'new_lead', ${JSON.stringify({ contactDate: today })}::jsonb)
+        returning id
+      `;
+      client = rows[0];
+    }
+    await addNote(client.id, today, noteBody);
+    return NextResponse.json({ ok: true, clientId: client.id });
+  }
+
+  if (body.kind === "trade") {
+    const name = clean(body.name, 200);
+    const email = clean(body.email, 200).toLowerCase();
+    const companyName = clean(body.companyName, 200);
+    if (!name || !email || !companyName) return NextResponse.json({ error: "Name, email and trading name are required" }, { status: 400 });
+    const phone = clean(body.phone, 50);
+    const address = [clean(body.address, 300), clean(body.city, 80), clean(body.postcode, 12)].filter(Boolean).join(", ");
+    const category = ["Residential", "Commercial"].includes(body.projectCategory) ? body.projectCategory : "";
+    const noteBody = [
+      `TRADE ACCOUNT APPLICATION — ${companyName} (${clean(body.businessType, 60) || "business type not given"}).`,
+      clean(body.jobTitle, 100) ? `Contact: ${name}, ${clean(body.jobTitle, 100)}` : `Contact: ${name}`,
+      clean(body.companyWebsite, 200) ? `Website: ${clean(body.companyWebsite, 200)}` : "",
+      clean(body.companyNumber, 40) ? `Company / VAT number: ${clean(body.companyNumber, 40)}` : "",
+      clean(body.projectCategory, 20) ? `Typical projects: ${clean(body.projectCategory, 20)}` : "",
+      clean(body.volume, 40) ? `Approx. flooring per year: ${clean(body.volume, 40)}` : "",
+      clean(body.message, 3000) ? `Projects: ${clean(body.message, 3000)}` : "",
+      clean(body.heardFrom, 200) ? `Heard about us via: ${clean(body.heardFrom, 200)}` : "",
+    ].filter(Boolean).join("\n");
+
+    let client = await findClientByEmail(email);
+    if (client) {
+      await sql`
+        update clients set
+          company_name = case when company_name = '' then ${companyName} else company_name end,
+          phone = case when phone = '' then ${phone} else phone end,
+          address = case when address = '' then ${address} else address end,
+          updated_at = now()
+        where id = ${client.id}
+      `;
+    } else {
+      const rows = await sql`
+        insert into clients (name, company_name, email, phone, address, project_category, source, stage, dates)
+        values (${name}, ${companyName}, ${email}, ${phone}, ${address}, ${category},
+                'Trade Partner', 'new_lead', ${JSON.stringify({ contactDate: today })}::jsonb)
         returning id
       `;
       client = rows[0];
