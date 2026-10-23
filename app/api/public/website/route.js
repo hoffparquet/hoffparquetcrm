@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { stageIndex } from "@/lib/constants";
-import { recordOrder, sendOrderAlert } from "@/lib/websiteOrders";
+import { recordOrder, sendOrderAlert, sendEnquiryAlert } from "@/lib/websiteOrders";
 
 // Called by the new hoffparquet.co.uk website (server to server, never a browser):
 //   kind "order"   — a paid online order (samples and/or accessories), sent after Mollie confirms payment
@@ -167,6 +167,11 @@ export async function POST(request) {
       client = rows[0];
     }
     await addNote(client.id, today, noteBody);
+    await sendEnquiryAlert({
+      kind: "enquiry", title: `New website enquiry${product ? " about " + product : ""}`, name, email, phone, clientId: client.id,
+      lines: [["Name", name], ["Email", email], ["Phone", phone], ["Postcode", postcode], ["Project", projectCategory], ["Approx. area", areaSqm ? areaSqm + " m²" : ""], ["Product", product], ["Sent from", clean(body.page, 300)]],
+      message: clean(body.message, 3000),
+    }, request.nextUrl.origin);
     return NextResponse.json({ ok: true, clientId: client.id });
   }
 
@@ -209,6 +214,11 @@ export async function POST(request) {
       client = rows[0];
     }
     await addNote(client.id, today, noteBody);
+    await sendEnquiryAlert({
+      kind: "trade", title: `Trade account application — ${companyName}`, name, email, phone, clientId: client.id,
+      lines: [["Trading name", companyName], ["Business type", clean(body.businessType, 60)], ["Contact", name + (clean(body.jobTitle, 100) ? ", " + clean(body.jobTitle, 100) : "")], ["Email", email], ["Phone", phone], ["Address", address], ["Website", clean(body.companyWebsite, 200)], ["Company / VAT no.", clean(body.companyNumber, 40)], ["Typical projects", clean(body.projectCategory, 20)], ["Flooring per year", clean(body.volume, 40)], ["Heard about us", clean(body.heardFrom, 200)]],
+      message: clean(body.message, 3000),
+    }, request.nextUrl.origin);
     return NextResponse.json({ ok: true, clientId: client.id });
   }
 
