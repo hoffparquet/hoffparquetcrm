@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { stageIndex } from "@/lib/constants";
+import { recordOrder, sendOrderAlert } from "@/lib/websiteOrders";
 
 // Called by the new hoffparquet.co.uk website (server to server, never a browser):
 //   kind "order"   — a paid online order (samples and/or accessories), sent after Mollie confirms payment
@@ -118,6 +119,21 @@ export async function POST(request) {
       client = rows[0];
     }
     await addNote(client.id, today, noteBody);
+
+    // Also list it on the CRM's Online Orders page and email the office.
+    const order = {
+      ref, paymentId, clientId: client.id,
+      customer: { name, email, phone, company, address, postcode: clean(c.postcode, 12) },
+      items: items.map((i) => ({ description: clean(i.description, 200), quantity: Number(i.quantity) || 1, total: Number(i.total) || 0 })),
+      total: Number(body.total) || 0, vat: Number(body.vat) || 0, delivery: Number(body.delivery) || 0,
+      notes: clean(body.notes, 500), paidAt: clean(body.paidAt, 40) || null,
+    };
+    try {
+      const orderId = await recordOrder(order);
+      if (orderId) await sendOrderAlert(order, request.nextUrl.origin);
+    } catch (e) {
+      console.error("Online order list failed (order is still on the client card):", e.message);
+    }
     return NextResponse.json({ ok: true, clientId: client.id });
   }
 
