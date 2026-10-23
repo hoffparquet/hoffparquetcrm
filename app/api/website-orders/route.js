@@ -4,9 +4,14 @@ import { ensureOrdersTable, orderRowToApi, ORDER_STATUSES } from "@/lib/websiteO
 
 // Online orders from the website (signed-in CRM users only — see middleware.js).
 export async function GET() {
-  await ensureOrdersTable();
-  const rows = await sql`select * from website_orders order by coalesce(paid_at, created_at) desc limit 500`;
-  return NextResponse.json(rows.map(orderRowToApi));
+  try {
+    await ensureOrdersTable();
+    const rows = await sql`select * from website_orders order by coalesce(paid_at, created_at) desc limit 500`;
+    return NextResponse.json(rows.map(orderRowToApi));
+  } catch (e) {
+    console.error("website orders:", e);
+    return NextResponse.json({ error: `Could not load orders: ${e.message}` }, { status: 500 });
+  }
 }
 
 // Change an order's status: { id, status: "new" | "packed" | "sent" | "cancelled" }
@@ -15,7 +20,7 @@ export async function PATCH(request) {
   let body;
   try { body = await request.json(); } catch (e) { return NextResponse.json({ error: "Invalid request" }, { status: 400 }); }
   const id = Number(body.id);
-  if (!id || !ORDER_STATUSES.includes(body.status)) return NextResponse.json({ error: "Unknown order or status" }, { status: 400 });
+  if (!Number.isInteger(id) || id < 1 || !ORDER_STATUSES.includes(body.status)) return NextResponse.json({ error: "Unknown order or status" }, { status: 400 });
   const stamp = JSON.stringify({ [body.status]: new Date().toISOString() });
   const rows = await sql`
     update website_orders set status = ${body.status}, status_dates = status_dates || ${stamp}::jsonb
